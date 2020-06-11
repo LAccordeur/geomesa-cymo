@@ -53,6 +53,7 @@
         <module>geomesa-z3</module>
         <module>geomesa-zk-utils</module>
         <module>docs</module>
+        <module>geomesa-test</module>
     </modules>
 
     <properties>

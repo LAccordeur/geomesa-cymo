@@ -12,6 +12,7 @@ import org.locationtech.geomesa.index.api.{GeoMesaFeatureIndex, GeoMesaFeatureIn
 import org.locationtech.geomesa.index.geotools.GeoMesaDataStore
 import org.locationtech.geomesa.index.index.attribute.AttributeIndex
 import org.locationtech.geomesa.index.index.attribute.legacy._
+import org.locationtech.geomesa.index.index.cymo.CymoIndex
 import org.locationtech.geomesa.index.index.id.IdIndex
 import org.locationtech.geomesa.index.index.id.legacy.{IdIndexV1, IdIndexV2, IdIndexV3}
 import org.locationtech.geomesa.index.index.z2.legacy._
@@ -28,7 +29,7 @@ import scala.util.Try
   */
 object DefaultFeatureIndexFactory extends GeoMesaFeatureIndexFactory {
 
-  private val available = Seq(Z3Index, XZ3Index, Z2Index, XZ2Index, IdIndex, AttributeIndex)
+  private val available = Seq(Z3Index, XZ3Index, Z2Index, XZ2Index, IdIndex, AttributeIndex, CymoIndex) // [CYMO]
 
   override def indices(sft: SimpleFeatureType, hint: Option[String]): Seq[IndexId] = {
     hint match {
@@ -82,6 +83,9 @@ object DefaultFeatureIndexFactory extends GeoMesaFeatureIndexFactory {
       case (AtIndex.name, 4)  => Some(new AttributeIndexV4(ds, sft, attribute, secondary, index.mode))
       case (AtIndex.name, 3)  => Some(new AttributeIndexV3(ds, sft, attribute, secondary.headOption, index.mode))
       case (AtIndex.name, 2)  => Some(new AttributeIndexV2(ds, sft, attribute, secondary.headOption, index.mode))
+
+      // [CYMO]
+      case (CymoIndex.name, 1)  => Some(new CymoIndex(ds, sft, geom3, dtg, index.mode))
 
       case _ => None
     }
