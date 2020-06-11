@@ -1,0 +1,3 @@
+org.locationtech.geomesa.utils.geotools.converters.JavaTimeConverterFactory
+org.locationtech.geomesa.utils.geotools.converters.ScalaCollectionsConverterFactory
+org.locationtech.geomesa.utils.geotools.converters.StringCollectionConverterFactory
