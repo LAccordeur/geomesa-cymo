@@ -32,6 +32,54 @@ public class BoundingBox {
 
     private int latitudeStop;
 
+    public int getTimeStart() {
+        return timeStart;
+    }
+
+    public void setTimeStart(int timeStart) {
+        this.timeStart = timeStart;
+    }
+
+    public int getTimeStop() {
+        return timeStop;
+    }
+
+    public void setTimeStop(int timeStop) {
+        this.timeStop = timeStop;
+    }
+
+    public int getLongitudeStart() {
+        return longitudeStart;
+    }
+
+    public void setLongitudeStart(int longitudeStart) {
+        this.longitudeStart = longitudeStart;
+    }
+
+    public int getLongitudeStop() {
+        return longitudeStop;
+    }
+
+    public void setLongitudeStop(int longitudeStop) {
+        this.longitudeStop = longitudeStop;
+    }
+
+    public int getLatitudeStart() {
+        return latitudeStart;
+    }
+
+    public void setLatitudeStart(int latitudeStart) {
+        this.latitudeStart = latitudeStart;
+    }
+
+    public int getLatitudeStop() {
+        return latitudeStop;
+    }
+
+    public void setLatitudeStop(int latitudeStop) {
+        this.latitudeStop = latitudeStop;
+    }
+
     public void printRangeInSubspace() {
         System.out.println(String.format("longitude range: [%d, %d], latitude range: [%d, %d], time range: [%d, %d]", longitudeStart, longitudeStop, latitudeStart, latitudeStop, timeStart, timeStop));
     }

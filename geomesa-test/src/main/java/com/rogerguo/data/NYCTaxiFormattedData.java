@@ -86,7 +86,7 @@ public class NYCTaxiFormattedData implements CommonData {
             List<SimpleFeature> features = new ArrayList<>();
 
             // read the bundled t-drive CSV
-            URL input = getClass().getClassLoader().getResource("dataset/trip_data_1_pickup_reduced.csv");
+            URL input = getClass().getClassLoader().getResource("dataset/trip_data_1_pickup_test.csv");
             if (input == null) {
                 throw new RuntimeException("Couldn't load resource trip_data_1_pickup.csv");
             }
@@ -137,7 +137,7 @@ public class NYCTaxiFormattedData implements CommonData {
             List<SimpleFeature> features = new ArrayList<>();
 
             // read the bundled t-drive CSV
-            URL input = getClass().getClassLoader().getResource("dataset/trip_data_1_pickup_reduced.csv");
+            URL input = getClass().getClassLoader().getResource("dataset/trip_data_1_pickup_test.csv");
             if (input == null) {
                 throw new RuntimeException("Couldn't load resource trip_data_1_pickup.csv");
             }
@@ -223,7 +223,7 @@ public class NYCTaxiFormattedData implements CommonData {
 
                 //query2.getHints().put(QueryHints.QUERY_INDEX(), "id");
 
-                String during2 = "dtg DURING 2010-01-02T15:05:00.000Z/2010-01-31T15:25:00.000Z";
+                String during2 = "dtg DURING 2010-01-01T00:00:00.000Z/2010-01-01T15:25:00.000Z";
                 String bbox2 = "bbox(geom,-73.960000, -73.910000, 40.762000,40.767000)";
                 Query query3 = new Query(getTypeName(), ECQL.toFilter(bbox2 + " AND " + during2));
                 //query3.getHints().put(QueryHints.LOOSE_BBOX(), Boolean.TRUE);

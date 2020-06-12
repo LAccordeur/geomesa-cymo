@@ -38,7 +38,7 @@ public class PartitionCurveStrategyHelper {
 
     private static ZCurve zCurve = new ZCurve(); // used to encode subspace id
 
-    private static final String CURVE_META_TABLE = "virtual_space_metadata_table";
+    public static final String CURVE_META_TABLE = "virtual_space_metadata_table";
 
     public final static String COLUMN_FAMILY_NAME = "cf";
 

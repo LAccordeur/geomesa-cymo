@@ -3,6 +3,8 @@ package com.rogerguo.cymo.hbase;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.slf4j.Logger;
@@ -36,6 +38,37 @@ public class HBaseDriver {
         }
     }
 
+    public void createTable(String tableName) throws IOException {
+        try (Admin admin = connection.getAdmin()) {
+            HTableDescriptor table = new HTableDescriptor(TableName.valueOf(tableName));
+            table.addFamily(new HColumnDescriptor("cf"));
+
+            if (admin.tableExists(TableName.valueOf(tableName))) {
+                logger.info(tableName + " exists");
+            } else {
+                admin.createTable(table);
+                logger.info("Create table: " + tableName);
+            }
+        }
+
+    }
+
+    public void createTable(String tableName, List<String> familyNameList) throws IOException {
+        try (Admin admin = connection.getAdmin()) {
+            HTableDescriptor table = new HTableDescriptor(TableName.valueOf(tableName));
+
+            for (String familyName : familyNameList) {
+                table.addFamily(new HColumnDescriptor(familyName));
+            }
+            if (admin.tableExists(TableName.valueOf(tableName))) {
+                logger.info(tableName + " exists");
+            } else {
+                admin.createTable(table);
+                logger.info("Create table: " + tableName);
+            }
+        }
+
+    }
 
 
 
