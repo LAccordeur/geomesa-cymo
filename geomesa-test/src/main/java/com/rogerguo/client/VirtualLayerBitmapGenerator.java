@@ -1,4 +1,4 @@
-package com.rogerguo.cymo.virtual;
+package com.rogerguo.client;
 
 import com.rogerguo.cymo.config.VirtualLayerConfiguration;
 import com.rogerguo.cymo.entity.SpatialRange;
@@ -7,6 +7,7 @@ import com.rogerguo.cymo.entity.TimeRange;
 import com.rogerguo.cymo.hbase.HBaseDriver;
 import com.rogerguo.cymo.hbase.RowKeyHelper;
 import com.rogerguo.cymo.hbase.RowKeyItem;
+import com.rogerguo.cymo.virtual.VirtualLayerGeoMesa;
 import com.rogerguo.cymo.virtual.entity.NormalizedLocation;
 import com.rogerguo.cymo.virtual.entity.NormalizedRange;
 import com.rogerguo.cymo.virtual.entity.SubspaceLocation;
@@ -57,7 +58,7 @@ public class VirtualLayerBitmapGenerator {
 
     public List<SpatialTemporalRecord> generatePointCount() {
         List<SpatialTemporalRecord> recordList = new ArrayList<>();
-        URL input = getClass().getClassLoader().getResource("dataset/trip_data_1_pickup.csv");
+        URL input = getClass().getClassLoader().getResource("dataset/trip_data_1_pickup_test.csv");
         //URL input = getClass().getClassLoader().getResource("G:\\DataSet\\FOIL2010\\format\\trip_data_1_pickup.csv");
         if (input == null) {
             throw new RuntimeException("Couldn't load resource trip_data_1.csv");

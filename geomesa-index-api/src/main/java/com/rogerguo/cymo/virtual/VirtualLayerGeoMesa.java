@@ -286,7 +286,7 @@ public class VirtualLayerGeoMesa {
         long subspaceID = subspaceInfo.getSubspaceID();
         BoundingBox queryRangeBoundBox = new BoundingBox(longitudeRange, latitudeRange, timeRange);
 
-        if (subspaceBitmap == null) {
+        /*if (subspaceBitmap == null || subspaceBitmap.size() == 0) {
             SubspaceLocation subspaceLocation = VirtualSpaceTransformationHelper.toSubspaceLocation(VirtualSpaceTransformationHelper.fromPartitionIDAndSubspaceID(partitionID, subspaceID));
 
             CellLocation beginCellOfThisSubspace = VirtualSpaceTransformationHelper.getFirstCellLocationOfThisSubspace(subspaceLocation);
@@ -317,7 +317,38 @@ public class VirtualLayerGeoMesa {
 
         } else {
             return null;
+        }*/
+
+        SubspaceLocation subspaceLocation = VirtualSpaceTransformationHelper.toSubspaceLocation(VirtualSpaceTransformationHelper.fromPartitionIDAndSubspaceID(partitionID, subspaceID));
+
+        CellLocation beginCellOfThisSubspace = VirtualSpaceTransformationHelper.getFirstCellLocationOfThisSubspace(subspaceLocation);
+        BoundingBox validQueryRange = computeValidQueryRangeInThisSubspace(subspaceLocation, queryRangeBoundBox);
+        validQueryRange.computeOffsetRangeInThisBoundingBox(beginCellOfThisSubspace);
+
+        //logger.info(String.format("[Virtual Layer] valid query range: %s", validQueryRange));
+
+        double fillRateOfValidRange = validQueryRange.computeFillRateOfValidRange();
+        logger.info(String.format("[Virtual Layer] Fill Rate: %f in (Partition ID: %d, Subspace ID: %d, CurveMeta: %s)", fillRateOfValidRange, partitionID, subspaceID, subspaceLocation.getCurveMeta().toString()));
+
+        if (fillRateOfValidRange <= 0.5) {
+            if (!VirtualLayerConfiguration.IS_WITH_META) {
+                System.out.println("aggregation without bitmap");
+                return optimizeByAggregationWithoutMeta(subspaceLocation, validQueryRange);
+            } else {
+                System.out.println("aggregation with bitmap");
+                return optimizeByAggregationWithMeta(subspaceLocation, validQueryRange, subspaceBitmap.get("basic"), subspaceBitmap.get("extra"));
+            }
+        } else if (fillRateOfValidRange < 0.99) {
+            if (!VirtualLayerConfiguration.IS_WITH_META) {
+                return optimizeBySplitWithoutMeta(subspaceLocation, validQueryRange);
+            } else {
+                return optimizeBySplitWithMeta(subspaceLocation, validQueryRange, subspaceBitmap.get("basic"), subspaceBitmap.get("extra"));
+            }
+        } else {
+            ScanOptimizer scanOptimizer = new ScanOptimizer(subspaceLocation);
+            return scanOptimizer;
         }
+
     }
 
     private ScanOptimizer optimizeByAggregationWithMeta(SubspaceLocation subspaceLocation, BoundingBox validQueryRange, List<Long> basicBitmap, List<Long> extraBitmap) {

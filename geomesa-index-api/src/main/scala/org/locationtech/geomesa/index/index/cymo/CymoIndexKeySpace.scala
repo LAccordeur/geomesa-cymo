@@ -4,7 +4,7 @@ import java.util.Date
 
 import com.rogerguo.cymo.entity.{SpatialRange, TimeRange}
 import com.rogerguo.cymo.hbase.RowKeyHelper
-import com.rogerguo.cymo.virtual.VirtualLayer
+import com.rogerguo.cymo.virtual.{VirtualLayer, VirtualLayerGeoMesa}
 import com.typesafe.scalalogging.LazyLogging
 import org.geotools.factory.Hints
 import org.locationtech.geomesa.curve.BinnedTime.TimeToBinnedTime
@@ -59,7 +59,7 @@ class CymoIndexKeySpace(val sft: SimpleFeatureType,
 
   override val sharing: Array[Byte] = Array.empty
 
-  private val virtualLayer: VirtualLayer = new VirtualLayer();
+  private val virtualLayer: VirtualLayerGeoMesa = new VirtualLayerGeoMesa("127.0.0.1");
 
   override def toIndexKey(writable: WritableFeature,
                           tier: Array[Byte],
