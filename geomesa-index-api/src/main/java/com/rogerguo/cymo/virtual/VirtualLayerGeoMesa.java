@@ -35,7 +35,7 @@ public class VirtualLayerGeoMesa {
 
     private static Map<String, List<Long>> cachedCellIDMap = new HashMap<>();
 
-    public static final String VIRTUAL_LAYER_INFO_TABLE = "virtual_layer_info_table";
+    public static final String VIRTUAL_LAYER_INFO_TABLE = "geomesa_virtual_layer_info_table";
 
     private static final String COLUMN_FAMILY_NAME = "cf";
 
@@ -153,11 +153,18 @@ public class VirtualLayerGeoMesa {
             List<SubScanItem> subScanItems = scanOptimizer.getSubScanItemList();
             for (SubScanItem subScanItem : subScanItems) {
                 SubScanRange scanRange = subScanItem.getSubScanRange();
+                // if lowbound == highbound, geomesa will throw an error, need to be verified TODO
+                //if (scanRange.getLowBound() == scanRange.getHighBound()) {
+                scanRange.setHighBound(scanRange.getHighBound() + 1);
+                //}
+
                 SubScanRangePair rangePair = new SubScanRangePair(partitionID, subspaceID, scanRange.getLowBound(), scanRange.getHighBound());
+
                 ranges.add(rangePair);
             }
         }
 
+        logger.info("[Virtual Layer] scan range to geomesa: " + ranges);
         return ranges;
 
     }

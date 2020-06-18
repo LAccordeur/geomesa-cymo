@@ -38,7 +38,7 @@ public class PartitionCurveStrategyHelper {
 
     private static ZCurve zCurve = new ZCurve(); // used to encode subspace id
 
-    public static final String CURVE_META_TABLE = "virtual_space_metadata_table";
+    public static final String CURVE_META_TABLE = "geomesa_virtual_space_metadata_table";
 
     public final static String COLUMN_FAMILY_NAME = "cf";
 
@@ -86,9 +86,11 @@ public class PartitionCurveStrategyHelper {
             }
         }
 
-        if (partitionLocation.getNormalizedPartitionLength() == VirtualLayerConfiguration.TEMPORAL_PARTITION_A_LENGTH) {
+        if (partitionLocation.getNormalizedPartitionLength() == VirtualLayerConfiguration.TEMPORAL_PARTITION_A_LENGTH
+        && partitionLocation.getPartitionID() % 2 == 0) {
             return new CurveMeta(VirtualLayerConfiguration.PARTITION_A_DEFAULT_STRATEGY);
-        } else if (partitionLocation.getNormalizedPartitionLength() == VirtualLayerConfiguration.TEMPORAL_PARTITION_B_LENGTH) {
+        } else if (partitionLocation.getNormalizedPartitionLength() == VirtualLayerConfiguration.TEMPORAL_PARTITION_B_LENGTH
+        && partitionLocation.getPartitionID() % 2 == 1) {
             return new CurveMeta(VirtualLayerConfiguration.PARTITION_B_DEFAULT_STRATEGY);
         } else {
             return new CurveMeta(VirtualLayerConfiguration.DEFAULT_STRATEGY);

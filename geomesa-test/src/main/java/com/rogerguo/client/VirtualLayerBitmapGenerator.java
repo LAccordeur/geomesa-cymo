@@ -46,8 +46,13 @@ public class VirtualLayerBitmapGenerator {
 
     public static void main(String[] args) throws IOException {
         VirtualLayerBitmapGenerator generator = new VirtualLayerBitmapGenerator("127.0.0.1");
-        generator.generatePointCount();
-        generator.generateAggregatedBitmap(new SpatialRange(-73.968171, -73.965171), new SpatialRange(40.762236,40.766236), new TimeRange(fromDateToTimestamp("2010-01-01 00:00:00"), fromDateToTimestamp("2010-01-01 15:25:00")));
+        //generator.generatePointCount();
+        //generator.generateAggregatedBitmap(new SpatialRange(-73.968171, -73.965171), new SpatialRange(40.762236,40.766236), new TimeRange(fromDateToTimestamp("2010-01-01 00:00:00"), fromDateToTimestamp("2010-01-01 15:25:00")));
+        generator.generateAggregatedBitmap(new SpatialRange(-73.960000, -73.860000),
+                new SpatialRange(40.632000,40.732000),
+                new TimeRange(fromDateToTimestamp("2010-01-12 15:00:00"), fromDateToTimestamp("2010-01-12 16:59:59")));
+
+
     }
 
     public static long fromDateToTimestamp(String dateString) {
@@ -58,7 +63,7 @@ public class VirtualLayerBitmapGenerator {
 
     public List<SpatialTemporalRecord> generatePointCount() {
         List<SpatialTemporalRecord> recordList = new ArrayList<>();
-        URL input = getClass().getClassLoader().getResource("dataset/trip_data_1_pickup_test.csv");
+        URL input = getClass().getClassLoader().getResource("dataset/trip_data_1_pickup.csv");
         //URL input = getClass().getClassLoader().getResource("G:\\DataSet\\FOIL2010\\format\\trip_data_1_pickup.csv");
         if (input == null) {
             throw new RuntimeException("Couldn't load resource trip_data_1.csv");

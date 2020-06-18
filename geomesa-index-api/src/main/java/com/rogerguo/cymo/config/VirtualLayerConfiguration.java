@@ -31,7 +31,7 @@ public class VirtualLayerConfiguration {
 
     public final static int TEMPORAL_PARTITION_B_LENGTH = 168;
 
-    public final static CurveType PARTITION_B_DEFAULT_STRATEGY = CurveType.Z_CURVE;
+    public final static CurveType PARTITION_B_DEFAULT_STRATEGY = CurveType.Z_CURVE_TXY;
 
     public final static CurveType DEFAULT_STRATEGY = CurveType.Z_CURVE;  // used to generate 2D curve (subspace id)
 

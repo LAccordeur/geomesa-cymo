@@ -9,7 +9,10 @@
 package com.rogerguo.client;
 
 import com.rogerguo.common.CommandLineDataStore;
+import com.rogerguo.cymo.entity.SpatialRange;
+import com.rogerguo.cymo.entity.TimeRange;
 import com.rogerguo.data.CommonData;
+import com.rogerguo.test.VerifyUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -21,15 +24,16 @@ import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.filter.text.ecql.ECQL;
 import org.geotools.factory.Hints;
 import org.locationtech.geomesa.index.geotools.GeoMesaDataStore;
+import org.locationtech.jts.geom.Point;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static com.rogerguo.test.VerifyUtil.fromDateToTimestamp;
 
 //import org.geotools.factory.Hints;
 
@@ -181,6 +185,9 @@ public abstract class GeoMesaClient implements Runnable {
 
     public void queryFeatures(DataStore datastore, List<Query> queries) throws IOException {
         for (Query query : queries) {
+
+            List<String> resultString = new ArrayList<>();
+
             System.out.println("Running query " + ECQL.toCQL(query.getFilter()));
             if (query.getPropertyNames() != null) {
                 System.out.println("Returning attributes " + Arrays.asList(query.getPropertyNames()));
@@ -196,16 +203,44 @@ public abstract class GeoMesaClient implements Runnable {
                      datastore.getFeatureReader(query, Transaction.AUTO_COMMIT)) {
                 // loop through all results, only print out the first 10
                 int n = 0;
+
+                int realCount = 0;
                 while (reader.hasNext()) {
                     SimpleFeature feature = reader.next();
                     if (n++ < 10) {
                         // use geotools data utilities to get a printable string
                         System.out.println(String.format("%02d", n) + " " + DataUtilities.encodeFeature(feature));
+                        Date date = (Date) feature.getAttribute("dtg");
+                        Point geom = (Point) feature.getAttribute("geom");
+
+                        //String[] geomItems = geom.split();
+                        System.out.println(date);
+                        System.out.println(geom.getX());
+                        System.out.println(geom.getY());
+
                     } else if (n == 10) {
                         System.out.println("...");
                     }
+
+
+                    Date date = (Date) feature.getAttribute("dtg");
+                    Point geom = (Point) feature.getAttribute("geom");
+                    String seqID = (String) feature.getAttribute("seq_id");
+                    StringBuffer stringBuffer = new StringBuffer();
+                    resultString.add(stringBuffer.append(seqID).append(geom.getX()).append(geom.getY()).append(date.getTime()).toString());
+
+                    SpatialRange longitudeRange = new SpatialRange(-73.968171, -73.965171);
+                    SpatialRange latitudeRange = new SpatialRange(40.762236,40.766236);
+                    TimeRange timeRange = new TimeRange(fromDateToTimestamp("2010-01-01 00:00:00"), fromDateToTimestamp("2010-01-01 15:25:00"));
+                    if (SpatialRange.isInRange(geom.getX(), longitudeRange) && SpatialRange.isInRange(geom.getY(), latitudeRange) && TimeRange.isInRange(date.getTime(), timeRange)) {
+                        realCount++;
+                    }
                 }
+
+                //VerifyUtil.verify(resultString);
+
                 System.out.println();
+                System.out.println("real count: " + realCount);
                 System.out.println("Returned " + n + " total features");
                 System.out.println();
             }
