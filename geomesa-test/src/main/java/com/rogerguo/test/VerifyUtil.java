@@ -37,7 +37,9 @@ public class VerifyUtil {
     }
 
     public static void verify(List<String> resultNeedVerify) {
-        List<String> realResult = util.computeCountInThisRange(new SpatialRange(-73.968171, -73.965171), new SpatialRange(40.762236,40.766236), new TimeRange(fromDateToTimestamp("2010-01-01 00:00:00"), fromDateToTimestamp("2010-01-01 15:25:00")));
+        List<String> realResult = util.computeCountInThisRange(new SpatialRange(-73.960000, -73.910000),
+                new SpatialRange(40.762000,40.767000),
+                new TimeRange(fromDateToTimestamp("2010-01-02 15:05:00"), fromDateToTimestamp("2010-01-31 15:25:00")));
         System.out.println("-----verify-------");
         System.out.println("count in result need verify: " + resultNeedVerify.size());
         System.out.println("real count in the range: " + realResult.size());

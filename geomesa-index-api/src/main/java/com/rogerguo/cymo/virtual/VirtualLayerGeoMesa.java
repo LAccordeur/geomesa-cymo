@@ -279,6 +279,11 @@ public class VirtualLayerGeoMesa {
 
     public static List<Long> fromString2ListValues(String stringValue) {
         List<Long> values = new ArrayList<>();
+
+        if (stringValue == null || stringValue == "") {
+            return values;
+        }
+
         String[] valuesString = stringValue.split(",");
 
         for (int i = 0; i < valuesString.length; i++) {
@@ -479,7 +484,14 @@ public class VirtualLayerGeoMesa {
     }
 
     public static List<Long> andResultForTwoSortedList(List<Long> values1, List<Long> values2) {
+
+
         List<Long> resultList = new ArrayList<>();
+
+        if (values1 == null || values2 == null || values1.size() == 0 || values2.size() == 0) {
+            return resultList;
+        }
+
         if (values1.get(values1.size() - 1) < values2.get(0) || values1.get(0) > values2.get(values2.size() - 1)) {
             return resultList;
         }

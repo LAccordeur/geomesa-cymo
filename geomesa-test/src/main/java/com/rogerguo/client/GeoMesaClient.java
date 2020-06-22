@@ -45,7 +45,7 @@ public abstract class GeoMesaClient implements Runnable {
     private final boolean readOnly;
 
     public GeoMesaClient(String[] args, Param[] parameters, CommonData data) throws ParseException {
-        this(args, parameters, data, false);
+        this(args, parameters, data, true);
     }
 
     public GeoMesaClient(String[] args, Param[] parameters, CommonData data, boolean readOnly) throws ParseException {
@@ -223,18 +223,18 @@ public abstract class GeoMesaClient implements Runnable {
                     }
 
 
-                    Date date = (Date) feature.getAttribute("dtg");
+                    /*Date date = (Date) feature.getAttribute("dtg");
                     Point geom = (Point) feature.getAttribute("geom");
                     String seqID = (String) feature.getAttribute("seq_id");
                     StringBuffer stringBuffer = new StringBuffer();
                     resultString.add(stringBuffer.append(seqID).append(geom.getX()).append(geom.getY()).append(date.getTime()).toString());
 
-                    SpatialRange longitudeRange = new SpatialRange(-73.968171, -73.965171);
-                    SpatialRange latitudeRange = new SpatialRange(40.762236,40.766236);
-                    TimeRange timeRange = new TimeRange(fromDateToTimestamp("2010-01-01 00:00:00"), fromDateToTimestamp("2010-01-01 15:25:00"));
+                    SpatialRange longitudeRange = new SpatialRange(-73.960000, -73.910000);
+                    SpatialRange latitudeRange = new SpatialRange(40.762000,40.767000);
+                    TimeRange timeRange = new TimeRange(fromDateToTimestamp("2010-01-02 15:05:00"), fromDateToTimestamp("2010-01-31 15:25:00"));
                     if (SpatialRange.isInRange(geom.getX(), longitudeRange) && SpatialRange.isInRange(geom.getY(), latitudeRange) && TimeRange.isInRange(date.getTime(), timeRange)) {
                         realCount++;
-                    }
+                    }*/
                 }
 
                 //VerifyUtil.verify(resultString);

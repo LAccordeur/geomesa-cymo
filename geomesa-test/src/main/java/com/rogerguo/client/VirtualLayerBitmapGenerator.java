@@ -48,9 +48,9 @@ public class VirtualLayerBitmapGenerator {
         VirtualLayerBitmapGenerator generator = new VirtualLayerBitmapGenerator("127.0.0.1");
         //generator.generatePointCount();
         //generator.generateAggregatedBitmap(new SpatialRange(-73.968171, -73.965171), new SpatialRange(40.762236,40.766236), new TimeRange(fromDateToTimestamp("2010-01-01 00:00:00"), fromDateToTimestamp("2010-01-01 15:25:00")));
-        generator.generateAggregatedBitmap(new SpatialRange(-73.960000, -73.860000),
-                new SpatialRange(40.632000,40.732000),
-                new TimeRange(fromDateToTimestamp("2010-01-12 15:00:00"), fromDateToTimestamp("2010-01-12 16:59:59")));
+        generator.generateAggregatedBitmap(new SpatialRange(-74.960000, -72.860000),
+                new SpatialRange(40.000000,41.999999),
+                new TimeRange(fromDateToTimestamp("2010-01-01 00:00:00"), fromDateToTimestamp("2010-01-31 23:59:59")));
 
 
     }
