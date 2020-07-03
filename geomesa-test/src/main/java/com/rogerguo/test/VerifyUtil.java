@@ -31,12 +31,14 @@ public class VerifyUtil {
     public static VerifyUtil util = new VerifyUtil();
 
     public static void main(String[] args) {
-        VerifyUtil verifyUtil = new VerifyUtil();
-        List<String> realResult = verifyUtil.computeCountInThisRange(new SpatialRange(-73.960000, -73.860000),
-                new SpatialRange(40.632000,40.732000),
-                new TimeRange(fromDateToTimestamp("2010-01-02 15:00:00"), fromDateToTimestamp("2010-01-02 15:59:59")));
-        System.out.println(realResult.size());
-        //System.out.println(curveValue(-73.911705, 40.762581, 1262631928000L));
+        /*VerifyUtil verifyUtil = new VerifyUtil();
+        List<String> realResult = verifyUtil.computeCountInThisRange(
+                new SpatialRange(-73.992000, -73.991000),
+                new SpatialRange(40.749000,40.750000),
+                new TimeRange(fromDateToTimestamp("2010-01-26 19:00:00"), fromDateToTimestamp("2010-01-27 19:00:00")));
+        System.out.println(realResult.size());*/
+        System.out.println(fromDateToTimestamp("2010-01-27 19:00:00"));
+        curveValue(-73.991000,40.750000, fromDateToTimestamp("2010-01-27 19:00:00"));
     }
 
     public static void verify(List<String> resultNeedVerify) {

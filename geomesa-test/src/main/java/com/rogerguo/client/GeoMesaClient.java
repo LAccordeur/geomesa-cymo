@@ -199,6 +199,7 @@ public abstract class GeoMesaClient implements Runnable {
             // submit the query, and get back an iterator over matching features
             // use try-with-resources to ensure the reader is closed
             long startTime = System.currentTimeMillis();
+
             try (FeatureReader<SimpleFeatureType, SimpleFeature> reader =
                      datastore.getFeatureReader(query, Transaction.AUTO_COMMIT)) {
                 // loop through all results, only print out the first 10
@@ -206,9 +207,6 @@ public abstract class GeoMesaClient implements Runnable {
 
                 int realCount = 0;
 
-                SpatialRange longitudeRange = new SpatialRange(-73.720000, -73.719000);
-                SpatialRange latitudeRange = new SpatialRange(40.962000,40.963000);
-                TimeRange timeRange = new TimeRange(fromDateToTimestamp("2010-01-18 15:00:00"), fromDateToTimestamp("2010-01-19 15:00:00"));
                 while (reader.hasNext()) {
                     SimpleFeature feature = reader.next();
                     if (n++ < 10) {
@@ -227,18 +225,22 @@ public abstract class GeoMesaClient implements Runnable {
                     }
 
 
-                    Date date = (Date) feature.getAttribute("dtg");
+                    /*Date date = (Date) feature.getAttribute("dtg");
                     Point geom = (Point) feature.getAttribute("geom");
                     String seqID = (String) feature.getAttribute("seq_id");
                     StringBuffer stringBuffer = new StringBuffer();
                     resultString.add(stringBuffer.append(seqID).append(geom.getX()).append(geom.getY()).append(date.getTime()).toString());
 
+                    SpatialRange longitudeRange = new SpatialRange(-74.047000, -73.947000);
+                    SpatialRange latitudeRange = new SpatialRange(40.705000,40.805000);
+                    TimeRange timeRange = new TimeRange(fromDateToTimestamp("2010-01-01 22:00:00"), fromDateToTimestamp("2010-01-31 22:00:00"));
+
                     if (SpatialRange.isInRange(geom.getX(), longitudeRange) && SpatialRange.isInRange(geom.getY(), latitudeRange) && TimeRange.isInRange(date.getTime(), timeRange)) {
                         realCount++;
-                    }
+                    }*/
                 }
 
-                VerifyUtil.verify(resultString, longitudeRange, latitudeRange, timeRange);
+                //VerifyUtil.verify(resultString, longitudeRange, latitudeRange, timeRange);
 
                 System.out.println();
                 System.out.println("real count: " + realCount);
