@@ -18,16 +18,16 @@ public class VirtualLayerConfiguration {
     /* Parameters of virtual layer*/
     public final static TimePeriod TEMPORAL_VIRTUAL_GRANULARITY = TimePeriod.HOUR;
 
-    public final static int SPATIAL_VIRTUAL_LATITUDE_GRANULARITY = 16;  // uniform space
+    public final static int SPATIAL_VIRTUAL_LATITUDE_GRANULARITY = 16;  // uniform space, one unit is 0.000085
 
-    public final static int SPATIAL_VIRTUAL_LONGITUDE_GRANULARITY = 16;  // uniform space
+    public final static int SPATIAL_VIRTUAL_LONGITUDE_GRANULARITY = 8;  // uniform space, one unit is 0.00017
 
     /* Parameters of partition */
     public final static int TEMPORAL_PARTITION_OFFSET = 0;
 
     public final static int TEMPORAL_PARTITION_A_LENGTH = 168; // TimePeriod * 120
 
-    public final static CurveType PARTITION_A_DEFAULT_STRATEGY = CurveType.Z_CURVE;
+    public final static CurveType PARTITION_A_DEFAULT_STRATEGY = CurveType.Z_CURVE_TXY;
 
     public final static int TEMPORAL_PARTITION_B_LENGTH = 168;
 
@@ -62,6 +62,16 @@ public class VirtualLayerConfiguration {
     /* curve mate parameter */
     public final static boolean IS_DYNAMIC_CURVE = false;
 
-    public final static boolean IS_WITH_META = true;
+    public final static boolean IS_WITH_META = false;
+
+    public static final String VIRTUAL_LAYER_INFO_TABLE = "geomesa_virtual_layer_info_table_nyc_z_txy";
+
+    public static final String CURVE_META_TABLE = "geomesa_virtual_space_metadata_table_nyc_z_txy";
+
+
+
+    /*public static final String VIRTUAL_LAYER_INFO_TABLE = "geomesa_virtual_layer_info_table_z_txy_168_168_8_8";
+
+    public static final String CURVE_META_TABLE = "geomesa_virtual_space_metadata_table_z_txy_168_168_8_8";*/
 
 }

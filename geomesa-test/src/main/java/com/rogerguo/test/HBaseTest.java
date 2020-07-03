@@ -15,8 +15,9 @@ import java.io.IOException;
 public class HBaseTest {
 
     public static void main(String[] args) throws IOException {
-        HBaseDriver hBaseDriver = new HBaseDriver("127.0.0.1");
-        hBaseDriver.scan(VirtualLayerGeoMesa.VIRTUAL_LAYER_INFO_TABLE, Bytes.toBytes("test"), Bytes.toBytes("test"));
+        /*HBaseDriver hBaseDriver = new HBaseDriver("127.0.0.1");
+        hBaseDriver.scan(VirtualLayerGeoMesa.VIRTUAL_LAYER_INFO_TABLE, Bytes.toBytes("test"), Bytes.toBytes("test"));*/
+        System.out.println(1L << 21);
     }
 
 }

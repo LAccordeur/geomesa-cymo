@@ -46,14 +46,15 @@ public class VirtualLayerBitmapGenerator {
 
     public static void main(String[] args) throws IOException {
         VirtualLayerBitmapGenerator generator = new VirtualLayerBitmapGenerator("127.0.0.1");
-        //generator.generatePointCount();
+        generator.generatePointCount();
         //generator.generateAggregatedBitmap(new SpatialRange(-73.968171, -73.965171), new SpatialRange(40.762236,40.766236), new TimeRange(fromDateToTimestamp("2010-01-01 00:00:00"), fromDateToTimestamp("2010-01-01 15:25:00")));
-        generator.generateAggregatedBitmap(new SpatialRange(-74.960000, -72.860000),
-                new SpatialRange(40.000000,41.999999),
+        generator.generateAggregatedBitmap(new SpatialRange(-75.960000, -71.860000),
+                new SpatialRange(40.000000,42.999999),
+                new TimeRange(fromDateToTimestamp("2010-01-01 00:00:00"), fromDateToTimestamp("2011-01-31 23:59:59")));
+        /*generator.generateAggregatedBitmap(new SpatialRange(0.000000, 0.110000),
+                new SpatialRange(0.000000, 0.110000),
                 new TimeRange(fromDateToTimestamp("2010-01-01 00:00:00"), fromDateToTimestamp("2010-01-31 23:59:59")));
-
-
-    }
+*/    }
 
     public static long fromDateToTimestamp(String dateString) {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.US);

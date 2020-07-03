@@ -2,6 +2,8 @@ package com.rogerguo.test;
 
 import com.rogerguo.cymo.entity.SpatialRange;
 import com.rogerguo.cymo.entity.TimeRange;
+import com.rogerguo.cymo.hbase.RowKeyHelper;
+import com.rogerguo.cymo.hbase.RowKeyItem;
 import com.rogerguo.cymo.virtual.entity.NormalizedRange;
 import com.rogerguo.cymo.virtual.helper.NormalizedDimensionHelper;
 import org.apache.commons.csv.CSVFormat;
@@ -32,14 +34,34 @@ public class VerifyUtil {
         VerifyUtil verifyUtil = new VerifyUtil();
         List<String> realResult = verifyUtil.computeCountInThisRange(new SpatialRange(-73.960000, -73.860000),
                 new SpatialRange(40.632000,40.732000),
-                new TimeRange(fromDateToTimestamp("2010-01-12 15:00:00"), fromDateToTimestamp("2010-01-12 16:59:59")));
+                new TimeRange(fromDateToTimestamp("2010-01-02 15:00:00"), fromDateToTimestamp("2010-01-02 15:59:59")));
         System.out.println(realResult.size());
+        //System.out.println(curveValue(-73.911705, 40.762581, 1262631928000L));
     }
 
     public static void verify(List<String> resultNeedVerify) {
         List<String> realResult = util.computeCountInThisRange(new SpatialRange(-73.960000, -73.910000),
                 new SpatialRange(40.762000,40.767000),
                 new TimeRange(fromDateToTimestamp("2010-01-02 15:05:00"), fromDateToTimestamp("2010-01-31 15:25:00")));
+        System.out.println("-----verify-------");
+        System.out.println("count in result need verify: " + resultNeedVerify.size());
+        System.out.println("real count in the range: " + realResult.size());
+
+        for (String string : resultNeedVerify) {
+            if (realResult.contains(string)) {
+                realResult.remove(string);
+            }
+        }
+        System.out.println(realResult);
+        System.out.println(realResult.size());
+
+
+    }
+
+    public static void verify(List<String> resultNeedVerify, SpatialRange longitudeRange, SpatialRange latitudeRange, TimeRange timeRange) {
+        List<String> realResult = util.computeCountInThisRange(longitudeRange,
+                latitudeRange,
+                timeRange);
         System.out.println("-----verify-------");
         System.out.println("count in result need verify: " + resultNeedVerify.size());
         System.out.println("real count in the range: " + realResult.size());
@@ -90,7 +112,11 @@ public class VerifyUtil {
             throw new RuntimeException("Error reading taxi data:", e);
         }
 
-        System.out.println(testResult.get(0));
+        if (testResult.size() > 0) {
+            System.out.println(testResult.get(0));
+        } else {
+            System.out.println(testResult.size());
+        }
         return testResult;
     }
 
@@ -98,5 +124,13 @@ public class VerifyUtil {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.US);
         long time = Date.from(LocalDateTime.parse(dateString, dateFormat).toInstant(ZoneOffset.UTC)).getTime();
         return time;
+    }
+
+    public static RowKeyItem curveValue(double longitude, double latitude, long timestamp) {
+        RowKeyItem value = RowKeyHelper.generateDataTableRowKey(longitude, latitude, timestamp);
+
+        System.out.println(value);
+
+        return value;
     }
 }

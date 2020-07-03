@@ -38,7 +38,7 @@ public class PartitionCurveStrategyHelper {
 
     private static ZCurve zCurve = new ZCurve(); // used to encode subspace id
 
-    public static final String CURVE_META_TABLE = "geomesa_virtual_space_metadata_table";
+    public static final String CURVE_META_TABLE = VirtualLayerConfiguration.CURVE_META_TABLE;
 
     public final static String COLUMN_FAMILY_NAME = "cf";
 

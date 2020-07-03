@@ -35,7 +35,7 @@ public class VirtualLayerGeoMesa {
 
     private static Map<String, List<Long>> cachedCellIDMap = new HashMap<>();
 
-    public static final String VIRTUAL_LAYER_INFO_TABLE = "geomesa_virtual_layer_info_table";
+    public static final String VIRTUAL_LAYER_INFO_TABLE = VirtualLayerConfiguration.VIRTUAL_LAYER_INFO_TABLE;
 
     private static final String COLUMN_FAMILY_NAME = "cf";
 
@@ -164,7 +164,8 @@ public class VirtualLayerGeoMesa {
             }
         }
 
-        logger.info("[Virtual Layer] scan range to geomesa: " + ranges);
+        logger.info("[Virtual Layer] size of scan range to geomesa: " + ranges.size());
+        //logger.info("[Virtual Layer] scan range to geomesa: " + ranges);
         return ranges;
 
     }
@@ -350,7 +351,7 @@ public class VirtualLayerGeoMesa {
                 System.out.println("aggregation with bitmap");
                 return optimizeByAggregationWithMeta(subspaceLocation, validQueryRange, subspaceBitmap.get("basic"), subspaceBitmap.get("extra"));
             }
-        } else if (fillRateOfValidRange < 0.99) {
+        } else if (fillRateOfValidRange < 0.95) {
             if (!VirtualLayerConfiguration.IS_WITH_META) {
                 return optimizeBySplitWithoutMeta(subspaceLocation, validQueryRange);
             } else {
