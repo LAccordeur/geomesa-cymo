@@ -485,9 +485,9 @@ public class NYCTaxiFormattedData implements CommonData {
                 //query8.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
 
                 queries.add(warmQuery);
-                queries.add(query31);
-                queries.add(query32);
-                queries.add(query33);
+                queries.add(query36);
+                //queries.add(query32);
+                //queries.add(query33);
 
                 this.queries = Collections.unmodifiableList(queries);
             } catch (Exception e) {

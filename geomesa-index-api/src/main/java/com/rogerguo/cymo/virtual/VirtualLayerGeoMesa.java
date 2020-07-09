@@ -114,6 +114,54 @@ public class VirtualLayerGeoMesa {
         Collections.sort(cellIDList4);
         cachedCellIDMap.put(cachedCellIDMapKey4, cellIDList4);
 
+        String cachedCellIDMapKey5 = CurveType.CURVE_T1X7Y7.toString() + "_" + VirtualLayerConfiguration.TEMPORAL_PARTITION_A_LENGTH;
+        List<Long> cellIDList5 = new ArrayList<>();
+        for (int n = 0; n < VirtualLayerConfiguration.TEMPORAL_PARTITION_A_LENGTH; n++) {
+            for (int i = 0; i < VirtualSpaceTransformationHelper.getSubspaceLongitudeCellLength(); i++) {
+                for (int j = 0; j < VirtualSpaceTransformationHelper.getSubspaceLatitudeCellLength(); j++) {
+                    cellIDList5.add(CurveTransformationHelper.generate3D(new CurveMeta(CurveType.CURVE_T1X7Y7), i, j, n));
+                }
+            }
+        }
+        Collections.sort(cellIDList5);
+        cachedCellIDMap.put(cachedCellIDMapKey5, cellIDList5);
+
+        String cachedCellIDMapKey6 = CurveType.CURVE_T1X7Y7.toString() + "_" + VirtualLayerConfiguration.TEMPORAL_PARTITION_B_LENGTH;
+        List<Long> cellIDList6 = new ArrayList<>();
+        for (int n = 0; n < VirtualLayerConfiguration.TEMPORAL_PARTITION_B_LENGTH; n++) {
+            for (int i = 0; i < VirtualSpaceTransformationHelper.getSubspaceLongitudeCellLength(); i++) {
+                for (int j = 0; j < VirtualSpaceTransformationHelper.getSubspaceLatitudeCellLength(); j++) {
+                    cellIDList6.add(CurveTransformationHelper.generate3D(new CurveMeta(CurveType.CURVE_T1X7Y7), i, j, n));
+                }
+            }
+        }
+        Collections.sort(cellIDList6);
+        cachedCellIDMap.put(cachedCellIDMapKey6, cellIDList6);
+
+        String cachedCellIDMapKey7 = CurveType.CURVE_X3Y3T8.toString() + "_" + VirtualLayerConfiguration.TEMPORAL_PARTITION_A_LENGTH;
+        List<Long> cellIDList7 = new ArrayList<>();
+        for (int n = 0; n < VirtualLayerConfiguration.TEMPORAL_PARTITION_A_LENGTH; n++) {
+            for (int i = 0; i < VirtualSpaceTransformationHelper.getSubspaceLongitudeCellLength(); i++) {
+                for (int j = 0; j < VirtualSpaceTransformationHelper.getSubspaceLatitudeCellLength(); j++) {
+                    cellIDList7.add(CurveTransformationHelper.generate3D(new CurveMeta(CurveType.CURVE_X3Y3T8), i, j, n));
+                }
+            }
+        }
+        Collections.sort(cellIDList7);
+        cachedCellIDMap.put(cachedCellIDMapKey7, cellIDList7);
+
+        String cachedCellIDMapKey8 = CurveType.CURVE_X3Y3T8.toString() + "_" + VirtualLayerConfiguration.TEMPORAL_PARTITION_B_LENGTH;
+        List<Long> cellIDList8 = new ArrayList<>();
+        for (int n = 0; n < VirtualLayerConfiguration.TEMPORAL_PARTITION_B_LENGTH; n++) {
+            for (int i = 0; i < VirtualSpaceTransformationHelper.getSubspaceLongitudeCellLength(); i++) {
+                for (int j = 0; j < VirtualSpaceTransformationHelper.getSubspaceLatitudeCellLength(); j++) {
+                    cellIDList8.add(CurveTransformationHelper.generate3D(new CurveMeta(CurveType.CURVE_X3Y3T8), i, j, n));
+                }
+            }
+        }
+        Collections.sort(cellIDList8);
+        cachedCellIDMap.put(cachedCellIDMapKey8, cellIDList8);
+
     }
 
     public List<SubScanRangePair> getRanges(SpatialRange longitudeRange, SpatialRange latitudeRange, TimeRange timeRange) throws IOException {

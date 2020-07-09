@@ -8,23 +8,21 @@
 
 package com.rogerguo.client;
 
-import com.rogerguo.data.NYCTaxiFormattedDataZ3Index;
-import com.rogerguo.data.NYCTaxiFormattedDataZ3IndexHybridPeakHour;
-import com.rogerguo.data.NYCTaxiFormattedDataZ3IndexHybridWeek;
-import com.rogerguo.data.NYCTaxiFormattedDataZ3IndexHybridWeekend;
+import com.rogerguo.data.NYCTaxiFormattedDataCymoZTXYForPeakHour;
+import com.rogerguo.data.NYCTaxiFormattedDataCymoZTXYFroHybridWeekend;
 import org.apache.commons.cli.ParseException;
 import org.locationtech.geomesa.hbase.data.HBaseDataStoreFactory;
 
-public class HBaseClientForZ3Index extends GeoMesaClient {
+public class HBaseClientCymoPeakHour extends GeoMesaClient {
 
 
-    public HBaseClientForZ3Index(String[] args) throws ParseException {
-        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataZ3Index());
+    public HBaseClientCymoPeakHour(String[] args) throws ParseException {
+        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataCymoZTXYForPeakHour());
     }
 
     public static void main(String[] args) {
         try {
-            new HBaseClientForZ3Index(args).run();
+            new HBaseClientCymoPeakHour(args).run();
         } catch (ParseException e) {
             System.exit(1);
         } catch (Throwable e) {

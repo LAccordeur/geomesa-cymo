@@ -62,7 +62,7 @@ public class VirtualLayerConfiguration {
     /* curve mate parameter */
     public final static boolean IS_DYNAMIC_CURVE = false;
 
-    public final static boolean IS_WITH_META = true;
+    public final static boolean IS_WITH_META = false;
 
     public static final String VIRTUAL_LAYER_INFO_TABLE = "geomesa_virtual_layer_info_table_nyc_z_txy";
 

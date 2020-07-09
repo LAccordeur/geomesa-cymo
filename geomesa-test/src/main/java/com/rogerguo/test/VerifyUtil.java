@@ -6,6 +6,7 @@ import com.rogerguo.cymo.hbase.RowKeyHelper;
 import com.rogerguo.cymo.hbase.RowKeyItem;
 import com.rogerguo.cymo.virtual.entity.NormalizedRange;
 import com.rogerguo.cymo.virtual.helper.NormalizedDimensionHelper;
+import com.rogerguo.cymo.virtual.normalization.TimePeriod;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -38,6 +39,7 @@ public class VerifyUtil {
                 new TimeRange(fromDateToTimestamp("2010-01-26 19:00:00"), fromDateToTimestamp("2010-01-27 19:00:00")));
         System.out.println(realResult.size());*/
         System.out.println(fromDateToTimestamp("2010-01-27 19:00:00"));
+        System.out.println(NormalizedDimensionHelper.normalizedTime(TimePeriod.HOUR, fromDateToTimestamp("2010-01-01 00:00:00")));
         curveValue(-73.991000,40.750000, fromDateToTimestamp("2010-01-27 19:00:00"));
     }
 

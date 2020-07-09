@@ -827,9 +827,9 @@ public class NYCTaxiFormattedDataZ3Index implements CommonData {
 
 
                 queries.add(warmQuery);
-                queries.add(query34);
-                queries.add(query35);
-                queries.add(query36);
+                //queries.add(query34);
+                //queries.add(query35);
+                queries.add(query27);
 
                 this.queries = Collections.unmodifiableList(queries);
             } catch (Exception e) {
