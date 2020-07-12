@@ -18,7 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -42,6 +44,8 @@ public class PartitionCurveStrategyHelper {
 
     public final static String COLUMN_FAMILY_NAME = "cf";
 
+    public static Map<String, CurveMeta> curveMetaMapCache = new HashMap<>();
+
     public static CurveType getCurveTypeByNormalizedLocation(NormalizedLocation normalizedLocation) {
         PartitionLocation partitionLocation = new PartitionLocation(normalizedLocation);
         if (partitionLocation.getNormalizedPartitionLength() == VirtualLayerConfiguration.TEMPORAL_PARTITION_A_LENGTH) {
@@ -63,26 +67,40 @@ public class PartitionCurveStrategyHelper {
             long subspaceID = zCurve.getCurveValue(subspaceLongitude, subspaceLatitude);
             RowKeyItem rowKeyItem = RowKeyHelper.generateCurveMetaTableRowKey(partitionLocation.getPartitionID(), subspaceID);
 
-            try {
-                Result result = hBaseDriver.get(CURVE_META_TABLE, rowKeyItem.getBytesRowKey());
-                if (result.getRow() != null) {
+            if (curveMetaMapCache.containsKey(rowKeyItem.getStringRowKey()) && curveMetaMapCache.get(rowKeyItem.getStringRowKey()) != null) {
+                return curveMetaMapCache.get(rowKeyItem.getStringRowKey());
+            } else if (curveMetaMapCache.containsKey(rowKeyItem.getStringRowKey()) && curveMetaMapCache.get(rowKeyItem.getStringRowKey()) == null) {
+                // jump to default config
+            }
+            else {
 
-                    List<Cell> cellList = result.listCells();
-                    if (cellList != null && cellList.size() != 0) {
-                        Cell cell = cellList.get(0);
-                        String value = Bytes.toString(CellUtil.cloneValue(cell));
-                        String[] valueItems = value.split(",");
-                        CurveType curveType = CurveType.valueOf(valueItems[0]);
-                        if (curveType == CurveType.CUSTOM_CURVE_XYTTXY || curveType == CurveType.CUSTOM_CURVE_XYTXYT) {
-                            return new CurveMeta(curveType, Integer.valueOf(valueItems[1]), Integer.valueOf(valueItems[2]), Integer.valueOf(valueItems[3]), Integer.valueOf(valueItems[4]), Integer.valueOf(valueItems[5]), Integer.valueOf(valueItems[6]));
-                        } else {
-                            return new CurveMeta(curveType);
+                try {
+                    Result result = hBaseDriver.get(CURVE_META_TABLE, rowKeyItem.getBytesRowKey());
+                    if (result.getRow() != null) {
+
+                        List<Cell> cellList = result.listCells();
+                        if (cellList != null && cellList.size() != 0) {
+                            Cell cell = cellList.get(0);
+                            String value = Bytes.toString(CellUtil.cloneValue(cell));
+                            String[] valueItems = value.split(",");
+                            CurveType curveType = CurveType.valueOf(valueItems[0]);
+                            if (curveType == CurveType.CUSTOM_CURVE_XYTTXY || curveType == CurveType.CUSTOM_CURVE_XYTXYT) {
+                                CurveMeta curveMeta = new CurveMeta(curveType, Integer.valueOf(valueItems[1]), Integer.valueOf(valueItems[2]), Integer.valueOf(valueItems[3]), Integer.valueOf(valueItems[4]), Integer.valueOf(valueItems[5]), Integer.valueOf(valueItems[6]));
+                                curveMetaMapCache.put(rowKeyItem.getStringRowKey(), curveMeta);
+                                return curveMeta;
+                            } else {
+                                CurveMeta curveMeta = new CurveMeta(curveType);
+                                curveMetaMapCache.put(rowKeyItem.getStringRowKey(), curveMeta);
+                                return curveMeta;
+                            }
                         }
+                    } else {
+                        curveMetaMapCache.put(rowKeyItem.getStringRowKey(), null);
                     }
+                } catch (IOException e) {
+                    logger.info("get curve meta fail");
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                logger.info("get curve meta fail");
-                e.printStackTrace();
             }
         }
 

@@ -8,20 +8,21 @@
 
 package com.rogerguo.client;
 
-import com.rogerguo.data.*;
+import com.rogerguo.data.NYCTaxiFormattedDataCymoZTXYForHybridWeek;
+import com.rogerguo.data.NYCTaxiFormattedDataDynamicCurve;
 import org.apache.commons.cli.ParseException;
 import org.locationtech.geomesa.hbase.data.HBaseDataStoreFactory;
 
-public class HBaseClient extends GeoMesaClient {
+public class HBaseClientDynamicCurve extends GeoMesaClient {
 
 
-    public HBaseClient(String[] args) throws ParseException {
-        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataCymoZTXYForHybridWeek());
+    public HBaseClientDynamicCurve(String[] args) throws ParseException {
+        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataDynamicCurve());
     }
 
     public static void main(String[] args) {
         try {
-            new HBaseClient(args).run();
+            new HBaseClientDynamicCurve(args).run();
         } catch (ParseException e) {
             System.exit(1);
         } catch (Throwable e) {

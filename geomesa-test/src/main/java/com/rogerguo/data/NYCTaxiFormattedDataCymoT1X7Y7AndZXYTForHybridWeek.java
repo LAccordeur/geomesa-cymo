@@ -30,7 +30,7 @@ import java.util.*;
  * @Date 2019/4/29 15:25
  * @Created by rogerguo
  */
-public class NYCTaxiFormattedDataCymoZTXYForHybridWeek implements CommonData {
+public class NYCTaxiFormattedDataCymoT1X7Y7AndZXYTForHybridWeek implements CommonData {
     private SimpleFeatureType sft = null;
     private List<SimpleFeature> features = null;
     private List<Query> queries = null;
@@ -43,7 +43,7 @@ public class NYCTaxiFormattedDataCymoZTXYForHybridWeek implements CommonData {
     @Override
     public String getTypeName() {
         //return "nyc-taxi-data-month1-xzprecision20-geomprecision7";
-        return "nyc-taxi-data-cymo-test";
+        return "nyc-taxi-data-cymo-test-t1x7y7-zxyt-week";
     }
 
     @Override
@@ -384,7 +384,7 @@ public class NYCTaxiFormattedDataCymoZTXYForHybridWeek implements CommonData {
 
 
                 queries.add(warmQuery);
-                queries.add(query1);
+                queries.add(query9);
                 /*queries.add(query1);
                 queries.add(query2);
                 queries.add(query13);
