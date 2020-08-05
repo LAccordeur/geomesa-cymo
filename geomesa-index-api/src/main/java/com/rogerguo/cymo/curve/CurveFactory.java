@@ -32,6 +32,8 @@ public class CurveFactory {
             case CUSTOM_CURVE_XYTXYT: return new CustomCurveXYTXYT(curveMeta.getBitNumberX(), curveMeta.getBitNumberY(), curveMeta.getBitNumberT(), curveMeta.getBitNumberGroupX(), curveMeta.getBitNumberGroupY(), curveMeta.getBitNumberGroupT());
             case CURVE_T1X7Y7: return new CurveT1X7Y7();
             case CURVE_X3Y3T8: return new CurveX3Y3T8();
+            case CURVE_T1X3Y3: return new CurveT1X3Y3();
+            case CURVE_X1Y1T8: return new CurveX1Y1T8();
 
             default: return null;
         }

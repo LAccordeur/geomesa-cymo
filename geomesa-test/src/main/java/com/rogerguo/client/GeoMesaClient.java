@@ -88,7 +88,11 @@ public abstract class GeoMesaClient implements Runnable {
 
             List<Query> queries = getTestQueries(data);
 
+            long startTime = System.currentTimeMillis();
             queryFeatures(datastore, queries);
+            long stopTime = System.currentTimeMillis();
+            System.out.println("Total time: ");
+            System.out.println(stopTime - startTime);
         } catch (Exception e) {
             throw new RuntimeException("Error running quickstart:", e);
         } finally {
@@ -248,7 +252,8 @@ public abstract class GeoMesaClient implements Runnable {
                 System.out.println();
             }
             long stopTime = System.currentTimeMillis();
-            System.out.println("This query consumes " + (stopTime - startTime) + "ms");
+            // System.out.println("This query consumes" + (stopTime - startTime) + "ms");
+            System.out.println((stopTime - startTime));
         }
     }
 

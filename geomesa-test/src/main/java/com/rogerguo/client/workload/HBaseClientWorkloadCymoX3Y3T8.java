@@ -6,26 +6,24 @@
  * http://www.opensource.org/licenses/apache2.0.php.
  */
 
-package com.rogerguo.client;
+package com.rogerguo.client.workload;
 
-import com.rogerguo.data.NYCTaxiFormattedDataZ3Index;
-import com.rogerguo.data.NYCTaxiFormattedDataZ3IndexHybridPeakHour;
-import com.rogerguo.data.NYCTaxiFormattedDataZ3IndexHybridWeek;
-import com.rogerguo.data.NYCTaxiFormattedDataZ3IndexHybridWeekend;
-import com.rogerguo.data.workload.*;
+import com.rogerguo.client.GeoMesaClient;
+import com.rogerguo.data.workload.NYCTaxiFormattedDataCymoT1X7Y7WorkloadOne;
+import com.rogerguo.data.workload.NYCTaxiFormattedDataCymoX3Y3T8WorkloadTwo;
 import org.apache.commons.cli.ParseException;
 import org.locationtech.geomesa.hbase.data.HBaseDataStoreFactory;
 
-public class HBaseClientForZ3Index extends GeoMesaClient {
+public class HBaseClientWorkloadCymoX3Y3T8 extends GeoMesaClient {
 
 
-    public HBaseClientForZ3Index(String[] args) throws ParseException {
-        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataZ3WorkloadThree());
+    public HBaseClientWorkloadCymoX3Y3T8(String[] args) throws ParseException {
+        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataCymoX3Y3T8WorkloadTwo());
     }
 
     public static void main(String[] args) {
         try {
-            new HBaseClientForZ3Index(args).run();
+            new HBaseClientWorkloadCymoX3Y3T8(args).run();
         } catch (ParseException e) {
             System.exit(1);
         } catch (Throwable e) {

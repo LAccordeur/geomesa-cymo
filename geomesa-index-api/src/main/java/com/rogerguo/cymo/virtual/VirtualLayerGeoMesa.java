@@ -162,6 +162,30 @@ public class VirtualLayerGeoMesa {
         Collections.sort(cellIDList8);
         cachedCellIDMap.put(cachedCellIDMapKey8, cellIDList8);
 
+        String cachedCellIDMapKey9 = CurveType.HILBERT_CURVE.toString() + "_" + VirtualLayerConfiguration.TEMPORAL_PARTITION_A_LENGTH;
+        List<Long> cellIDList9 = new ArrayList<>();
+        for (int n = 0; n < VirtualLayerConfiguration.TEMPORAL_PARTITION_A_LENGTH; n++) {
+            for (int i = 0; i < VirtualSpaceTransformationHelper.getSubspaceLongitudeCellLength(); i++) {
+                for (int j = 0; j < VirtualSpaceTransformationHelper.getSubspaceLatitudeCellLength(); j++) {
+                    cellIDList9.add(CurveTransformationHelper.generate3D(new CurveMeta(CurveType.HILBERT_CURVE), i, j, n));
+                }
+            }
+        }
+        Collections.sort(cellIDList9);
+        cachedCellIDMap.put(cachedCellIDMapKey9, cellIDList9);
+
+        String cachedCellIDMapKey10 = CurveType.HILBERT_CURVE.toString() + "_" + VirtualLayerConfiguration.TEMPORAL_PARTITION_B_LENGTH;
+        List<Long> cellIDList10 = new ArrayList<>();
+        for (int n = 0; n < VirtualLayerConfiguration.TEMPORAL_PARTITION_B_LENGTH; n++) {
+            for (int i = 0; i < VirtualSpaceTransformationHelper.getSubspaceLongitudeCellLength(); i++) {
+                for (int j = 0; j < VirtualSpaceTransformationHelper.getSubspaceLatitudeCellLength(); j++) {
+                    cellIDList10.add(CurveTransformationHelper.generate3D(new CurveMeta(CurveType.HILBERT_CURVE), i, j, n));
+                }
+            }
+        }
+        Collections.sort(cellIDList10);
+        cachedCellIDMap.put(cachedCellIDMapKey10, cellIDList10);
+
     }
 
     public List<SubScanRangePair> getRanges(SpatialRange longitudeRange, SpatialRange latitudeRange, TimeRange timeRange) throws IOException {
