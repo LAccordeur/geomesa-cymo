@@ -285,7 +285,7 @@ public class NYCTaxiFormattedDataCymoX3Y3T8WorkloadTwo implements CommonData {
 
 
                 queries.add(warmQuery);
-                queries.add(query10);
+                queries.add(query3);
                 /*queries.add(query1);
                 queries.add(query2);
                 queries.add(query3);

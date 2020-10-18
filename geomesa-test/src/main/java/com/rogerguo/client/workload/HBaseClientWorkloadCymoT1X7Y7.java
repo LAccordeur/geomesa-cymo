@@ -11,6 +11,7 @@ package com.rogerguo.client.workload;
 import com.rogerguo.client.GeoMesaClient;
 import com.rogerguo.data.workload.NYCTaxiFormattedDataCymoHilbertWorkloadThree;
 import com.rogerguo.data.workload.NYCTaxiFormattedDataCymoT1X7Y7WorkloadOne;
+import com.rogerguo.data.workload.NYCTaxiFormattedDataCymoT1X7Y7WorkloadTwo;
 import org.apache.commons.cli.ParseException;
 import org.locationtech.geomesa.hbase.data.HBaseDataStoreFactory;
 
@@ -18,7 +19,7 @@ public class HBaseClientWorkloadCymoT1X7Y7 extends GeoMesaClient {
 
 
     public HBaseClientWorkloadCymoT1X7Y7(String[] args) throws ParseException {
-        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataCymoT1X7Y7WorkloadOne());
+        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataCymoT1X7Y7WorkloadTwo());
     }
 
     public static void main(String[] args) {

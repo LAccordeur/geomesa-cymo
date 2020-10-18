@@ -478,12 +478,6 @@ public class NYCTaxiFormattedData implements CommonData {
                 query36.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
 
 
-                String during37 = "dtg DURING 2010-01-02T15:05:00.000Z/2010-01-31T15:25:00.000Z";
-                String bbox37 = "bbox(geom,-73.960000, -73.060000, 40.062000,40.962000)";
-                Query query37 = new Query(getTypeName(), ECQL.toFilter(bbox37 + " AND " + during37));
-                //query4.getHints().put(QueryHints.LOOSE_BBOX(), Boolean.TRUE);
-                //query8.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
-
                 queries.add(warmQuery);
                 queries.add(query36);
                 //queries.add(query32);

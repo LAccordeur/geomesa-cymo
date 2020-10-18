@@ -27,11 +27,11 @@ public class VirtualLayerConfiguration {
 
     public final static int TEMPORAL_PARTITION_A_LENGTH = 168; // TimePeriod * 120
 
-    public final static CurveType PARTITION_A_DEFAULT_STRATEGY = CurveType.CURVE_X1Y1T8;
+    public final static CurveType PARTITION_A_DEFAULT_STRATEGY = CurveType.CURVE_T1X3Y3;
 
     public final static int TEMPORAL_PARTITION_B_LENGTH = 168;
 
-    public final static CurveType PARTITION_B_DEFAULT_STRATEGY = CurveType.CURVE_X1Y1T8;
+    public final static CurveType PARTITION_B_DEFAULT_STRATEGY = CurveType.CURVE_T1X7Y7;
 
     public final static CurveType DEFAULT_STRATEGY = CurveType.Z_CURVE;  // used to generate 2D curve (subspace id)
 
@@ -62,11 +62,11 @@ public class VirtualLayerConfiguration {
     /* curve mate parameter */
     public final static boolean IS_DYNAMIC_CURVE = false;
 
-    public final static boolean IS_WITH_META = false;
+    public final static boolean IS_WITH_META = true;
 
-    public static final String VIRTUAL_LAYER_INFO_TABLE = "geomesa_virtual_layer_info_table_nyc_workload_x1y1t8";
+    public static final String VIRTUAL_LAYER_INFO_TABLE = "geomesa_virtual_layer_info_table_nyc_exp2_workload1";
 
-    public static final String CURVE_META_TABLE = "geomesa_virtual_space_metadata_table_nyc_workload_x1y1t8";
+    public static final String CURVE_META_TABLE = "geomesa_virtual_space_metadata_table_nyc_exp2_workload1";
 
     /*public static final String VIRTUAL_LAYER_INFO_TABLE = "geomesa_virtual_layer_info_table_nyc_z_txy";
 
