@@ -6,23 +6,22 @@
  * http://www.opensource.org/licenses/apache2.0.php.
  */
 
-package com.rogerguo.client;
+package com.rogerguo.client.old;
 
-import com.rogerguo.data.NYCTaxiFormattedDataHybridWorkloadVerify;
-import com.rogerguo.data.NYCTaxiFormattedDataZ3IndexHybridPeakHour;
+import com.rogerguo.data.NYCTaxiFormattedDataCymoZTXYAndZXYTForHybridWeek;
 import org.apache.commons.cli.ParseException;
 import org.locationtech.geomesa.hbase.data.HBaseDataStoreFactory;
 
-public class HBaseClientForZ3IndexVerify extends GeoMesaClient {
+public class HBaseClientCymoZTXYZXYT extends GeoMesaClient {
 
 
-    public HBaseClientForZ3IndexVerify(String[] args) throws ParseException {
-        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataHybridWorkloadVerify());
+    public HBaseClientCymoZTXYZXYT(String[] args) throws ParseException {
+        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataCymoZTXYAndZXYTForHybridWeek());
     }
 
     public static void main(String[] args) {
         try {
-            new HBaseClientForZ3IndexVerify(args).run();
+            new HBaseClientCymoZTXYZXYT(args).run();
         } catch (ParseException e) {
             System.exit(1);
         } catch (Throwable e) {

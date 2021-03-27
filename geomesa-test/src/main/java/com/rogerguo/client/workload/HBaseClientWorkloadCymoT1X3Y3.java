@@ -8,9 +8,8 @@
 
 package com.rogerguo.client.workload;
 
-import com.rogerguo.client.GeoMesaClient;
+import com.rogerguo.client.old.GeoMesaClient;
 import com.rogerguo.data.workload.NYCTaxiFormattedDataCymoT1X3Y3WorkloadFour;
-import com.rogerguo.data.workload.NYCTaxiFormattedDataCymoT1X7Y7WorkloadOne;
 import org.apache.commons.cli.ParseException;
 import org.locationtech.geomesa.hbase.data.HBaseDataStoreFactory;
 

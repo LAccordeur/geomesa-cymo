@@ -44,6 +44,8 @@ public class PartitionCurveStrategyHelper {
 
     public final static String COLUMN_FAMILY_NAME = "cf";
 
+    // TODO #cache# multiple thread
+
     public static Map<String, CurveMeta> curveMetaMapCache = new HashMap<>();
 
     public static CurveType getCurveTypeByNormalizedLocation(NormalizedLocation normalizedLocation) {
@@ -85,6 +87,10 @@ public class PartitionCurveStrategyHelper {
                             String[] valueItems = value.split(",");
                             CurveType curveType = CurveType.valueOf(valueItems[0]);
                             if (curveType == CurveType.CUSTOM_CURVE_XYTTXY || curveType == CurveType.CUSTOM_CURVE_XYTXYT) {
+                                CurveMeta curveMeta = new CurveMeta(curveType, Integer.valueOf(valueItems[1]), Integer.valueOf(valueItems[2]), Integer.valueOf(valueItems[3]), Integer.valueOf(valueItems[4]), Integer.valueOf(valueItems[5]), Integer.valueOf(valueItems[6]));
+                                curveMetaMapCache.put(rowKeyItem.getStringRowKey(), curveMeta);
+                                return curveMeta;
+                            } else if (curveType == CurveType.CUSTOM_CURVE_XYT || curveType == CurveType.CUSTOM_CURVE_TXY) {
                                 CurveMeta curveMeta = new CurveMeta(curveType, Integer.valueOf(valueItems[1]), Integer.valueOf(valueItems[2]), Integer.valueOf(valueItems[3]), Integer.valueOf(valueItems[4]), Integer.valueOf(valueItems[5]), Integer.valueOf(valueItems[6]));
                                 curveMetaMapCache.put(rowKeyItem.getStringRowKey(), curveMeta);
                                 return curveMeta;

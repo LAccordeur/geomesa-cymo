@@ -6,23 +6,24 @@
  * http://www.opensource.org/licenses/apache2.0.php.
  */
 
-package com.rogerguo.client;
+package com.rogerguo.client.cymo.experiment.test;
 
-import com.rogerguo.common.CommandLineDataStore;
+
+import com.rogerguo.client.cymo.experiment.common.CommandLineDataStore;
+import com.rogerguo.client.cymo.experiment.data.CommonData;
 import com.rogerguo.cymo.entity.SpatialRange;
 import com.rogerguo.cymo.entity.TimeRange;
-import com.rogerguo.data.CommonData;
 import com.rogerguo.test.VerifyUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.geotools.data.*;
 import org.geotools.data.DataAccessFactory.Param;
+import org.geotools.data.*;
 import org.geotools.data.simple.SimpleFeatureStore;
+import org.geotools.factory.Hints;
 import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.filter.text.ecql.ECQL;
-import org.geotools.factory.Hints;
 import org.locationtech.geomesa.index.geotools.GeoMesaDataStore;
 import org.locationtech.jts.geom.Point;
 import org.opengis.feature.simple.SimpleFeature;
@@ -211,6 +212,10 @@ public abstract class GeoMesaClient implements Runnable {
 
                 int realCount = 0;
 
+                SpatialRange longitudeRange = new SpatialRange(-73.987000, -73.977000);
+                SpatialRange latitudeRange = new SpatialRange(40.785000,40.795000);
+                TimeRange timeRange = new TimeRange(fromDateToTimestamp("2010-01-12 08:00:00"), fromDateToTimestamp("2010-01-12 08:59:59"));
+
                 while (reader.hasNext()) {
                     SimpleFeature feature = reader.next();
                     if (n++ < 10) {
@@ -235,9 +240,9 @@ public abstract class GeoMesaClient implements Runnable {
                     StringBuffer stringBuffer = new StringBuffer();
                     resultString.add(stringBuffer.append(seqID).append(geom.getX()).append(geom.getY()).append(date.getTime()).toString());
 
-                    SpatialRange longitudeRange = new SpatialRange(-74.047000, -73.947000);
+                    *//*SpatialRange longitudeRange = new SpatialRange(-74.047000, -73.947000);
                     SpatialRange latitudeRange = new SpatialRange(40.705000,40.805000);
-                    TimeRange timeRange = new TimeRange(fromDateToTimestamp("2010-01-01 22:00:00"), fromDateToTimestamp("2010-01-31 22:00:00"));
+                    TimeRange timeRange = new TimeRange(fromDateToTimestamp("2010-01-01 22:00:00"), fromDateToTimestamp("2010-01-31 22:00:00"));*//*
 
                     if (SpatialRange.isInRange(geom.getX(), longitudeRange) && SpatialRange.isInRange(geom.getY(), latitudeRange) && TimeRange.isInRange(date.getTime(), timeRange)) {
                         realCount++;

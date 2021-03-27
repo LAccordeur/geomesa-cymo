@@ -1,4 +1,5 @@
 geomesa-test/src/main/resources/dataset/*
+geomesa-test/src/main/resources/query/*
 build/zinc*
 build/scala*
 build/*.jar

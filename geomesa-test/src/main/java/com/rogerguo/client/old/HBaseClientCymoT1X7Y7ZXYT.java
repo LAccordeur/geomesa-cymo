@@ -6,22 +6,22 @@
  * http://www.opensource.org/licenses/apache2.0.php.
  */
 
-package com.rogerguo.client;
+package com.rogerguo.client.old;
 
-import com.rogerguo.data.NYCTaxiFormattedDataHybridWorkloadWeekend;
+import com.rogerguo.data.NYCTaxiFormattedDataCymoT1X7Y7AndZXYTForHybridWeek;
 import org.apache.commons.cli.ParseException;
 import org.locationtech.geomesa.hbase.data.HBaseDataStoreFactory;
 
-public class HBaseClientHybridWeekend extends GeoMesaClient {
+public class HBaseClientCymoT1X7Y7ZXYT extends GeoMesaClient {
 
 
-    public HBaseClientHybridWeekend(String[] args) throws ParseException {
-        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataHybridWorkloadWeekend());
+    public HBaseClientCymoT1X7Y7ZXYT(String[] args) throws ParseException {
+        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataCymoT1X7Y7AndZXYTForHybridWeek());
     }
 
     public static void main(String[] args) {
         try {
-            new HBaseClientHybridWeekend(args).run();
+            new HBaseClientCymoT1X7Y7ZXYT(args).run();
         } catch (ParseException e) {
             System.exit(1);
         } catch (Throwable e) {

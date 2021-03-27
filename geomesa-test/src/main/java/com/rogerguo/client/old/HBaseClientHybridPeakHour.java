@@ -6,25 +6,22 @@
  * http://www.opensource.org/licenses/apache2.0.php.
  */
 
-package com.rogerguo.client;
+package com.rogerguo.client.old;
 
-import com.rogerguo.data.NYCTaxiFormattedData;
-import com.rogerguo.data.UniformedFormattedData;
-import com.rogerguo.data.UniformedFormattedDataLargeLargeSubspace;
-import com.rogerguo.data.UniformedFormattedDataSmallSubspace;
+import com.rogerguo.data.NYCTaxiFormattedDataHybridWorkloadPeakHour;
 import org.apache.commons.cli.ParseException;
 import org.locationtech.geomesa.hbase.data.HBaseDataStoreFactory;
 
-public class HBaseClientForUniformedData extends GeoMesaClient {
+public class HBaseClientHybridPeakHour extends GeoMesaClient {
 
 
-    public HBaseClientForUniformedData(String[] args) throws ParseException {
-        super(args, new HBaseDataStoreFactory().getParametersInfo(), new UniformedFormattedDataSmallSubspace());
+    public HBaseClientHybridPeakHour(String[] args) throws ParseException {
+        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataHybridWorkloadPeakHour());
     }
 
     public static void main(String[] args) {
         try {
-            new HBaseClientForUniformedData(args).run();
+            new HBaseClientHybridPeakHour(args).run();
         } catch (ParseException e) {
             System.exit(1);
         } catch (Throwable e) {

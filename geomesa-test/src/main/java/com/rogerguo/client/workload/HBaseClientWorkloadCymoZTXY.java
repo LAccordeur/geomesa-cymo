@@ -8,7 +8,7 @@
 
 package com.rogerguo.client.workload;
 
-import com.rogerguo.client.GeoMesaClient;
+import com.rogerguo.client.old.GeoMesaClient;
 import com.rogerguo.data.workload.*;
 import org.apache.commons.cli.ParseException;
 import org.locationtech.geomesa.hbase.data.HBaseDataStoreFactory;

@@ -1,4 +1,4 @@
-package com.rogerguo.client;
+package com.rogerguo.client.cymo;
 
 import com.rogerguo.cymo.config.VirtualLayerConfiguration;
 import com.rogerguo.cymo.entity.SpatialRange;
@@ -20,6 +20,7 @@ import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;
@@ -46,20 +47,124 @@ public class VirtualLayerBitmapGenerator {
 
     public static void main(String[] args) throws IOException {
         VirtualLayerBitmapGenerator generator = new VirtualLayerBitmapGenerator("127.0.0.1");
-        generator.generatePointCount();
-        //generator.generateAggregatedBitmap(new SpatialRange(-73.968171, -73.965171), new SpatialRange(40.762236,40.766236), new TimeRange(fromDateToTimestamp("2010-01-01 00:00:00"), fromDateToTimestamp("2010-01-01 15:25:00")));
-        generator.generateAggregatedBitmap(new SpatialRange(-75.960000, -71.860000),
+        /*generator.generatePointCount();
+         generator.generateAggregatedBitmap(new SpatialRange(-75.960000, -71.860000),
                 new SpatialRange(40.000000,42.999999),
                 new TimeRange(fromDateToTimestamp("2010-01-01 00:00:00"), fromDateToTimestamp("2011-01-31 23:59:59")));
-        /*generator.generateAggregatedBitmap(new SpatialRange(0.000000, 0.110000),
-                new SpatialRange(0.000000, 0.110000),
-                new TimeRange(fromDateToTimestamp("2010-01-01 00:00:00"), fromDateToTimestamp("2010-01-31 23:59:59")));
-*/    }
+*/
+
+        String dataTable = "geomesa_cymo_test_new_nyc_2dtaxi_2ddata_2dtest_2dnew_2ddynamic_cymo_geom_dtg_v1";
+        //dataTable = "geomesa_cymo_test_new_nyc_2dtaxi_2ddata_2dtest_2dnew_2done_2drecord_cymo_geom_dtg_v1";
+        generator.generatePointCount(dataTable);
+
+    }
 
     public static long fromDateToTimestamp(String dateString) {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.US);
         long time = Date.from(LocalDateTime.parse(dateString, dateFormat).toInstant(ZoneOffset.UTC)).getTime();
         return time;
+    }
+
+
+    /**
+     * new version through hbase table
+     * @param dataTableName
+     */
+    public void generatePointCount(String dataTableName) throws IOException {
+
+        // for index table, row key = partition id + subspace id, qualifier name = virtual cell id, value = count number of this cell
+        // for data table, partitionId 3 bytes, subspaceId 5 bytes, virtualCellId 8 bytes
+        ResultScanner scanner = hBaseDriver.scan(dataTableName);
+
+        int count = 0;
+        Map<String, Integer> cellCount = new HashMap<>();
+        for (Result result : scanner) {
+            if (result.getRow() != null) {
+                //needs to know rowkey format of geomesa: shard(1 byte) + partitionId 3 bytes, subspaceId 5 bytes, virtualCellId 8 bytes
+                byte[] rowKey = result.getRow();
+                byte[] cymoInfoBytes = new byte[16];
+                System.arraycopy(rowKey, 1, cymoInfoBytes, 0, 16);
+                Map<String, Object> parsedResult = RowKeyHelper.fromDataByteRowKey(cymoInfoBytes);
+                int partitionId = (int) parsedResult.get("partitionID");
+                long subspaceId = (long) parsedResult.get("subspaceID");
+                long cellId = (long) parsedResult.get("cellID");
+                StringBuilder builder = new StringBuilder();
+                String rowKeyString = builder.append(partitionId).append(",").append(subspaceId).append(",").append(cellId).toString();
+                List<Cell> cellList = result.listCells();
+
+                if (!cellCount.containsKey(rowKeyString)) {
+                    cellCount.put(rowKeyString, cellList.size());
+                } else {
+                    cellCount.put(rowKeyString, cellCount.get(rowKeyString) + cellList.size());
+                }
+                count++;
+                System.out.println(count);
+            }
+        }
+        System.out.println("finsish");
+
+        Set<String> rowkeySet = cellCount.keySet();
+        Map<String, List<Long>> subspaceBasicBitmap = new HashMap<>();
+        Map<String, List<Long>> subspaceExtraBitmap = new HashMap<>();
+        for (String key : rowkeySet) {
+            String[] items = key.split(",");
+            String subspaceKey = RowKeyHelper.concatIndexTableStringRowKey(Integer.valueOf(items[0]), Long.valueOf(items[1]));
+            Long cellID = Long.valueOf(items[2]);
+            int pointCountInCell = cellCount.get(key);
+
+            if (subspaceBasicBitmap.containsKey(subspaceKey)) {
+                subspaceBasicBitmap.get(subspaceKey).add(cellID);
+            } else {
+                subspaceBasicBitmap.put(subspaceKey, new ArrayList<>());
+                subspaceBasicBitmap.get(subspaceKey).add(cellID);
+            }
+
+            if (pointCountInCell > VirtualLayerConfiguration.BASIC_BITMAP_UP_BOUND) {
+                if (subspaceExtraBitmap.containsKey(subspaceKey)) {
+                    subspaceExtraBitmap.get(subspaceKey).add(cellID);
+                } else {
+                    subspaceExtraBitmap.put(subspaceKey, new ArrayList<>());
+                    subspaceExtraBitmap.get(subspaceKey).add(cellID);
+                }
+            }
+        }
+
+        List<Put> putList = new ArrayList<>();
+        Set<String> bitmapKeySet = subspaceBasicBitmap.keySet();
+        for (String bitmapKey : bitmapKeySet) {
+            Put basicPut = new Put(Bytes.toBytes(bitmapKey));
+            String basicListString = fromListValue2String(subspaceBasicBitmap.get(bitmapKey));
+            basicPut.addColumn(Bytes.toBytes("agg"), Bytes.toBytes("agg_basic"), Bytes.toBytes(basicListString));
+            putList.add(basicPut);
+
+            Put extraPut = new Put(Bytes.toBytes(bitmapKey));
+            String extraListString = fromListValue2String(subspaceExtraBitmap.get(bitmapKey));
+            extraPut.addColumn(Bytes.toBytes("agg"), Bytes.toBytes("agg_extra"), Bytes.toBytes(extraListString));
+            putList.add(extraPut);
+        }
+
+        hBaseDriver.batchPut(VirtualLayerGeoMesa.VIRTUAL_LAYER_INFO_TABLE, putList);
+
+        /*int batchSize = 8192;
+
+        List<Put> putList = new ArrayList<>();
+        Set<String> rowKeySet = subspaceCount.keySet();
+        for (String rowKey : rowKeySet) {
+            String[] items = rowKey.split(",");
+            String indexRowKey = items[0] + "," + items[1];
+            Put put = new Put(Bytes.toBytes(indexRowKey));
+            put.addColumn(Bytes.toBytes("cf"), Bytes.toBytes(Long.valueOf(items[2])), Bytes.toBytes(subspaceCount.get(rowKey)));
+            putList.add(put);
+
+            if (putList.size() % batchSize == 0) {
+                hBaseDriver.batchPut(VirtualLayerGeoMesa.VIRTUAL_LAYER_INFO_TABLE, new ArrayList<>(putList));
+                putList.clear();
+            }
+
+        }
+        hBaseDriver.batchPut(VirtualLayerGeoMesa.VIRTUAL_LAYER_INFO_TABLE, new ArrayList<>(putList));*/
+
+
     }
 
     public List<SpatialTemporalRecord> generatePointCount() {

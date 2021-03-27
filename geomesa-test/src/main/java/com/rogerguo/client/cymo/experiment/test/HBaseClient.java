@@ -6,13 +6,8 @@
  * http://www.opensource.org/licenses/apache2.0.php.
  */
 
-package com.rogerguo.client;
+package com.rogerguo.client.cymo.experiment.test;
 
-import com.rogerguo.data.exp2.workload1.NYCTaxiFormattedDataExp2CymoWorkload1MultiplePattern;
-import com.rogerguo.data.exp2.workload1.NYCTaxiFormattedDataExp2CymoWorkload1SinglePattern;
-import com.rogerguo.data.exp2.workload2.NYCTaxiFormattedDataExp2CymoWorkload2SinglePattern;
-import com.rogerguo.data.exp2.workload3.NYCTaxiFormattedDataExp2CymoWorkload3Equal;
-import com.rogerguo.data.exp2.workload3.NYCTaxiFormattedDataExp2CymoWorkload3Skewed;
 import org.apache.commons.cli.ParseException;
 import org.locationtech.geomesa.hbase.data.HBaseDataStoreFactory;
 
@@ -20,7 +15,7 @@ public class HBaseClient extends GeoMesaClient {
 
 
     public HBaseClient(String[] args) throws ParseException {
-        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataExp2CymoWorkload1SinglePattern());
+        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataTest());
     }
 
     public static void main(String[] args) {

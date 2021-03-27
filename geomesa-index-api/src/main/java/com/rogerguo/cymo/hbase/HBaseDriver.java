@@ -131,4 +131,15 @@ public class HBaseDriver {
         }
     }
 
+    public ResultScanner scan(String tableName) throws IOException {
+
+        try (Table hTable = connection.getTable(TableName.valueOf(tableName))) {
+
+            Scan scan = new Scan();
+            ResultScanner resultScanner = hTable.getScanner(scan);
+
+            return resultScanner;
+        }
+    }
+
 }

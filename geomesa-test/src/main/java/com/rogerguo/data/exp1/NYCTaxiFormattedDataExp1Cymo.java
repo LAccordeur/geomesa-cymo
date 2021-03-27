@@ -1,6 +1,6 @@
 package com.rogerguo.data.exp1;
 
-import com.rogerguo.client.GeoMesaClient;
+import com.rogerguo.client.old.GeoMesaClient;
 import com.rogerguo.data.CommonData;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;

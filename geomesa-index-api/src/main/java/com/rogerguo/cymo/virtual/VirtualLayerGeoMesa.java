@@ -31,7 +31,10 @@ import java.util.*;
  */
 public class VirtualLayerGeoMesa {
 
+
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    // TODO #cache# 并发环境
 
     private static Map<String, List<Long>> cachedCellIDMap = new HashMap<>();
 
@@ -40,6 +43,10 @@ public class VirtualLayerGeoMesa {
     private static final String COLUMN_FAMILY_NAME = "cf";
 
     private HBaseDriver hBaseDriver;
+
+    private static Map<String, List<Long>> cachedBitmapMap = new HashMap<>();
+
+    private static Set<String> fetchedBitmapRowKeySet = new HashSet<>();
 
     public VirtualLayerGeoMesa(String zookeeperUrl) {
         this.hBaseDriver = new HBaseDriver(zookeeperUrl);
@@ -260,10 +267,10 @@ public class VirtualLayerGeoMesa {
 
         List<Get> basicGetList = new ArrayList<>();
         for (RowKeyItem key : bitmapTableRowKeyList) {
-            Get basicGet = new Get(Bytes.toBytes(key.getStringRowKey()));
-            basicGet.addFamily(Bytes.toBytes("agg"));
-            basicGetList.add(basicGet);
 
+            /*Get basicGet = new Get(Bytes.toBytes(key.getStringRowKey()));
+            basicGet.addFamily(Bytes.toBytes("agg"));
+            basicGetList.add(basicGet);*/
 
             // init result map
             int partitionID = ((SubspaceLocation) key.getBitmapPayload()).getPartitionID();
@@ -273,8 +280,8 @@ public class VirtualLayerGeoMesa {
                 // check if this partition exists
                 Map<Long, Map<String, List<Long>>> subSpaceMap = new HashMap<>();
                 Map<String, List<Long>> bitmapMap = new HashMap<>();
-                //bitmapMap.put("basic", new ArrayList<>());
-                //bitmapMap.put("extra", new ArrayList<>());
+                bitmapMap.put("basic", new ArrayList<>());
+                bitmapMap.put("extra", new ArrayList<>());
                 subSpaceMap.put(subSubspaceID, bitmapMap);
                 virtualLayerDataMap.put(partitionID, subSpaceMap);
             } else {
@@ -282,8 +289,8 @@ public class VirtualLayerGeoMesa {
                 Map<Long, Map<String, List<Long>>> subspaceMap = virtualLayerDataMap.get(partitionID);
                 if (subspaceMap.get(subSubspaceID) == null) {
                     Map<String, List<Long>> bitmapMap = new HashMap<>();
-                    //bitmapMap.put("basic", new ArrayList<>());
-                    //bitmapMap.put("extra", new ArrayList<>());
+                    bitmapMap.put("basic", new ArrayList<>());
+                    bitmapMap.put("extra", new ArrayList<>());
                     subspaceMap.put(subSubspaceID, bitmapMap);
                 }
 
@@ -296,10 +303,38 @@ public class VirtualLayerGeoMesa {
             return virtualLayerDataMap;
         }
 
+        // cache start
+        for (RowKeyItem key : bitmapTableRowKeyList) {
+            if (!fetchedBitmapRowKeySet.contains(key.getStringRowKey())) {
+                fetchedBitmapRowKeySet.add(key.getStringRowKey());
+                Get basicGet = new Get(Bytes.toBytes(key.getStringRowKey()));
+                basicGet.addFamily(Bytes.toBytes("agg"));
+                basicGetList.add(basicGet);
+            } else {
+                // get bitmap from cache
+                int partitionID = ((SubspaceLocation) key.getBitmapPayload()).getPartitionID();
+                long subSubspaceID = key.getSubspaceID();
+
+                Map<String, String> parsedRowKey = RowKeyHelper.fromIndexStringRowKey(key.getStringRowKey());
+                String basicCacheKey = String.format("%s,%s,%s", parsedRowKey.get("partitionID"), parsedRowKey.get("subspaceID"), "basic"); // partition_id + subspace_id + type
+                String extraCacheKey = String.format("%s,%s,%s", parsedRowKey.get("partitionID"), parsedRowKey.get("subspaceID"), "extra");
+                if (cachedBitmapMap.containsKey(basicCacheKey) && cachedBitmapMap.get(basicCacheKey) != null) {
+                    virtualLayerDataMap.get(partitionID).get(subSubspaceID).put("basic", cachedBitmapMap.get(basicCacheKey));
+                }
+                if (cachedBitmapMap.containsKey(extraCacheKey) && cachedBitmapMap.get(extraCacheKey) != null) {
+                    virtualLayerDataMap.get(partitionID).get(subSubspaceID).put("extra", cachedBitmapMap.get(extraCacheKey));
+                }
+
+            }
+
+        }
+        // cache end
+
+
         long start1 = System.currentTimeMillis();
         Result[] results = hBaseDriver.batchGet(VIRTUAL_LAYER_INFO_TABLE, basicGetList);
         long stop1 = System.currentTimeMillis();
-        //System.out.println("Batch get bitmap takes " + (stop1 - start1));
+        System.out.println("Batch get bitmap takes " + (stop1 - start1));
 
         long start2 = System.currentTimeMillis();
         if (results != null && results.length > 0) {
@@ -308,7 +343,7 @@ public class VirtualLayerGeoMesa {
                 List<Cell> cellList = result.listCells();
                 if (cellList != null && cellList.size() == 2) {
 
-                    System.out.println("I am here");
+                    //System.out.println("I am here");
                     // partition id + subspace id
                     byte[] rowKey = result.getRow();
                     Map<String, String> parsedRowKey = RowKeyHelper.fromIndexStringRowKey(Bytes.toString(rowKey));
@@ -320,12 +355,19 @@ public class VirtualLayerGeoMesa {
                     virtualLayerDataMap.get(Integer.valueOf(parsedRowKey.get("partitionID"))).get(Long.valueOf(parsedRowKey.get("subspaceID"))).put("basic", basicBitmapResult);
 
 
-                    Cell extraCell = cellList.get(0);
+                    Cell extraCell = cellList.get(1);
                     byte[] extraBitmapValue = CellUtil.cloneValue(extraCell);
                     String extraBitmapString = Bytes.toString(extraBitmapValue);
                     List<Long> extraBitmapResult = fromString2ListValues(extraBitmapString);
                     virtualLayerDataMap.get(Integer.valueOf(parsedRowKey.get("partitionID"))).get(Long.valueOf(parsedRowKey.get("subspaceID"))).put("extra", extraBitmapResult);
 
+
+                    // cache start
+                    String basicCacheKey = String.format("%s,%s,%s", parsedRowKey.get("partitionID"), parsedRowKey.get("subspaceID"), "basic"); // partition_id + subspace_id + type
+                    String extraCacheKey = String.format("%s,%s,%s", parsedRowKey.get("partitionID"), parsedRowKey.get("subspaceID"), "extra");
+                    cachedBitmapMap.put(basicCacheKey, basicBitmapResult);
+                    cachedBitmapMap.put(extraCacheKey, extraBitmapResult);
+                    // cache end
                 }
             }
         }

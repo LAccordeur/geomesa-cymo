@@ -1,6 +1,6 @@
 package com.rogerguo.data.exp5;
 
-import com.rogerguo.client.GeoMesaClient;
+import com.rogerguo.client.old.GeoMesaClient;
 import com.rogerguo.data.CommonData;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -10,7 +10,6 @@ import org.geotools.data.Query;
 import org.geotools.factory.Hints;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.filter.text.ecql.ECQL;
-import org.locationtech.geomesa.index.conf.QueryHints;
 import org.locationtech.geomesa.utils.interop.SimpleFeatureTypes;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;

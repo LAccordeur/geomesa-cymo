@@ -250,4 +250,27 @@ public class RowKeyHelper {
         return resultMap;
     }
 
+
+    /**
+     * rowkey -> partitionID + subspaceID + cellID
+     * @param rowKey
+     * @return
+     */
+    public static Map<String, Object> fromDataByteRowKey(byte[] rowKey) {
+
+        byte[] partitionIDBytes = new byte[]{0, 0, 0, 0};
+        byte[] subspaceIDBytes = new byte[]{0, 0, 0, 0, 0, 0, 0, 0};
+        byte[] cellIDBytes = new byte[]{0, 0, 0, 0, 0, 0, 0, 0};
+
+        System.arraycopy(rowKey, 0, partitionIDBytes, 1, 3);
+        System.arraycopy(rowKey, 3, subspaceIDBytes, 3, 5);
+        System.arraycopy(rowKey, 8, cellIDBytes, 0, 8);
+
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("partitionID", CurveUtil.bytesToInt(partitionIDBytes));
+        resultMap.put("subspaceID", CurveUtil.bytesToLong(subspaceIDBytes));
+        resultMap.put("cellID", CurveUtil.bytesToLong(cellIDBytes));
+        return resultMap;
+    }
+
 }

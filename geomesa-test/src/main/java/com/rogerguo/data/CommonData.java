@@ -8,7 +8,7 @@
 
 package com.rogerguo.data;
 
-import com.rogerguo.client.GeoMesaClient;
+import com.rogerguo.client.old.GeoMesaClient;
 import org.geotools.data.DataStore;
 import org.geotools.data.Query;
 import org.opengis.feature.simple.SimpleFeature;
