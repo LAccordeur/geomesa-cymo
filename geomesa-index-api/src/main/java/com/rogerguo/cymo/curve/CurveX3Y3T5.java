@@ -8,23 +8,11 @@ import java.util.Map;
  * @Author GUO Yang
  * @Date 2020-01-19 6:27 PM
  */
-public class CustomCurveXYT implements SpaceFillingCurve {
+public class CurveX3Y3T5 implements SpaceFillingCurve {
 
     private static int count = 0;
 
     private static int precision = 21;
-
-    private int bitNumberX;
-
-    private int bitNumberY;
-
-    private int bitNumberT;
-
-    public CustomCurveXYT(int bitNumberX, int bitNumberY, int bitNumberT) {
-        this.bitNumberX = bitNumberX;
-        this.bitNumberY = bitNumberY;
-        this.bitNumberT = bitNumberT;
-    }
 
     @Override
     public String getCurveValueString(int x, int y) {
@@ -49,12 +37,12 @@ public class CustomCurveXYT implements SpaceFillingCurve {
         //count++;
         //System.out.println(count);
         return Long.valueOf(curveBinaryString, 2);*/
-        return generateCurveEfficiently(x, y, z, bitNumberX, bitNumberY, bitNumberT);
+        return generateCurveEfficiently(x, y, z, 3, 3, 5);
     }
 
     @Override
     public Map<String, Integer> from3DCurveValue(long curveValue) {
-        return from3DCurveEfficiently(curveValue, bitNumberX, bitNumberY, bitNumberT);
+        return from3DCurveEfficiently(curveValue, 3, 3, 5);
     }
 
     @Override
@@ -68,7 +56,6 @@ public class CustomCurveXYT implements SpaceFillingCurve {
     private static Map<Integer, Long> BIT_MASK_MAP = new HashMap<>();
 
     static {
-        BIT_MASK_MAP.put(0, 0x0L);
         BIT_MASK_MAP.put(1, 0x1L);
         BIT_MASK_MAP.put(2, 0x3L);
         BIT_MASK_MAP.put(3, 0x7L);

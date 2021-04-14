@@ -49,17 +49,22 @@ public class IndexingSchemeDecider {
 
     private static HBaseDriver hBaseDriver = new HBaseDriver("127.0.0.1");
 
-    private static String tableName = "prediction_frequency_test";
+    private static String tableName = "frequency_real_test_month1";
 
     private static int SPATIAL_NORMALIZE_PRECISION = 21;
 
     public static void main(String[] args) {
-        SpatialRange longitudeRange = new SpatialRange(-74, -73.70);
+        try {
+            hBaseDriver.createTable(PartitionCurveStrategyHelper.CURVE_META_TABLE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SpatialRange longitudeRange = new SpatialRange(-74.05, -73.75);
         SpatialRange latitudeRange = new SpatialRange(40.60, 40.90);
         TimeRange timeRange = new TimeRange(fromDateToTimestamp("2010-01-01 00:00:00"), fromDateToTimestamp("2010-01-31 23:59:59"));
 
         double predictionSpatialWidth = 0.02;
-        int predictionTimeWidth = 1;
+        int predictionTimeWidth = 1;  // 1 hour
         try {
             decideIndexingScheme(longitudeRange, latitudeRange, timeRange, predictionSpatialWidth, predictionTimeWidth);
         } catch (IOException e) {
@@ -102,18 +107,22 @@ public class IndexingSchemeDecider {
 
         Map<SubspaceLocation, List<Integer>> frequencyResultMap = parseRangeOnVirtualLayer(normalizedLongitudeRange, normalizedLatitudeRange, normalizedTimeRange, predictionSpatialWidth, predictionTimeWidth);
 
+
         Set<SubspaceLocation> subspaceLocations = frequencyResultMap.keySet();
         for (SubspaceLocation subspace : subspaceLocations) {
             List<Integer> frequencyResult = frequencyResultMap.get(subspace);
-            int sum = frequencyResult.get(0) + frequencyResult.get(1);
-            double workload1Frequency = (sum == 0 ? 0 : frequencyResult.get(0) / sum);
-            double workload2Frequency = (sum == 0 ? 0 : frequencyResult.get(1) / sum);
+            double sum = frequencyResult.get(0) + frequencyResult.get(1);
+            double workload1Frequency = (sum == 0 ? 0 : 1.0 * frequencyResult.get(0) / sum);
+            double workload2Frequency = (sum == 0 ? 0 : 1.0 * frequencyResult.get(1) / sum);
+
 
             List<QueryPattern> queryPatterns = new ArrayList<>();
 
             //TODO add query pattern
-            QueryPattern queryPattern1 = new QueryPattern(32, 32, 1, workload1Frequency, workload1Frequency);
+            QueryPattern queryPattern1 = new QueryPattern(32, 32, 1, workload1Frequency, workload1Frequency*0.1);
             queryPatterns.add(queryPattern1);
+            QueryPattern queryPattern2 = new QueryPattern(2, 2, 24, workload2Frequency, workload2Frequency*10);
+            queryPatterns.add(queryPattern2);
             CurveMeta indexingScheme = EvaluateIndexingScheme.evaluateIndexing(queryPatterns);
             System.out.println(subspace + ": " + indexingScheme);
             PartitionCurveStrategyHelper.insertCurveMetaForSubspace(indexingScheme, new NormalizedLocation(subspace.getOriginalSubspaceLongitude(), subspace.getOriginalSubspaceLatitude(), subspace.getOriginalNormalizedTime()));
@@ -193,10 +202,13 @@ public class IndexingSchemeDecider {
                             for (Cell cell : cellList) {
                                 String columnFamilyName = Bytes.toString(CellUtil.cloneFamily(cell));
                                 int frequency = (int) Math.floor(Double.valueOf(Bytes.toString(CellUtil.cloneValue(cell))));
-                                if (columnFamilyName.equals("workload_1_next_passenger_sample")) {
+                                if (columnFamilyName.equals("workload_1_next_passenger_million_sample")) {
                                     workload1Frequency += frequency;
-                                } else if (columnFamilyName == "workload2") {
+                                } else if (columnFamilyName.equals("workload_2_heatmap_airport")) {
                                     workload2Frequency += frequency;
+                                    if (workload2Frequency > 0) {
+                                        System.out.println(workload2Frequency);
+                                    }
                                 }
                             }
                         }

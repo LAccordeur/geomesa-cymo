@@ -13,6 +13,7 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,48 @@ public class PartitionCurveStrategyHelper {
 
     public static Map<String, CurveMeta> curveMetaMapCache = new HashMap<>();
 
+
+    static {
+        try {
+            ResultScanner scanner = hBaseDriver.scan(CURVE_META_TABLE);
+            Result result = scanner.next();
+            while (result != null) {
+                byte[] bytesRowKey = result.getRow();
+                Map<String, Object> keyMap = RowKeyHelper.fromIndexByteRowKey(bytesRowKey);
+                String stringRowKey = RowKeyHelper.concatIndexTableStringRowKey((int) keyMap.get("partitionID"), (long) keyMap.get("subspaceID"));
+                if (result.getRow() != null) {
+
+                    List<Cell> cellList = result.listCells();
+                    if (cellList != null && cellList.size() != 0) {
+                        Cell cell = cellList.get(0);
+                        String value = Bytes.toString(CellUtil.cloneValue(cell));
+                        String[] valueItems = value.split(",");
+                        CurveType curveType = CurveType.valueOf(valueItems[0]);
+                        if (curveType == CurveType.CUSTOM_CURVE_XYTTXY || curveType == CurveType.CUSTOM_CURVE_XYTXYT) {
+                            CurveMeta curveMeta = new CurveMeta(curveType, Integer.valueOf(valueItems[1]), Integer.valueOf(valueItems[2]), Integer.valueOf(valueItems[3]), Integer.valueOf(valueItems[4]), Integer.valueOf(valueItems[5]), Integer.valueOf(valueItems[6]));
+                            curveMetaMapCache.put(stringRowKey, curveMeta);
+
+                        } else if (curveType == CurveType.CUSTOM_CURVE_XYT || curveType == CurveType.CUSTOM_CURVE_TXY) {
+                            CurveMeta curveMeta = new CurveMeta(curveType, Integer.valueOf(valueItems[1]), Integer.valueOf(valueItems[2]), Integer.valueOf(valueItems[3]), Integer.valueOf(valueItems[4]), Integer.valueOf(valueItems[5]), Integer.valueOf(valueItems[6]));
+                            curveMetaMapCache.put(stringRowKey, curveMeta);
+
+                        } else {
+                            CurveMeta curveMeta = new CurveMeta(curveType);
+                            curveMetaMapCache.put(stringRowKey, curveMeta);
+
+                        }
+                    }
+                } else {
+                    curveMetaMapCache.put(stringRowKey, null);
+                }
+                result = scanner.next();
+            }
+            System.out.println("finish meta table cache");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static CurveType getCurveTypeByNormalizedLocation(NormalizedLocation normalizedLocation) {
         PartitionLocation partitionLocation = new PartitionLocation(normalizedLocation);
         if (partitionLocation.getNormalizedPartitionLength() == VirtualLayerConfiguration.TEMPORAL_PARTITION_A_LENGTH) {
@@ -64,19 +107,22 @@ public class PartitionCurveStrategyHelper {
         PartitionLocation partitionLocation = new PartitionLocation(normalizedLocation);
 
         if (VirtualLayerConfiguration.IS_DYNAMIC_CURVE) {
+
             int subspaceLongitude = normalizedLocation.getX() / VirtualLayerConfiguration.PARTITION_LONGITUDE_GRANULARITY;
             int subspaceLatitude = normalizedLocation.getY() / VirtualLayerConfiguration.PARTITION_LATITUDE_GRANULARITY;
             long subspaceID = zCurve.getCurveValue(subspaceLongitude, subspaceLatitude);
-            RowKeyItem rowKeyItem = RowKeyHelper.generateCurveMetaTableRowKey(partitionLocation.getPartitionID(), subspaceID);
+            //RowKeyItem rowKeyItem = RowKeyHelper.generateCurveMetaTableRowKey(partitionLocation.getPartitionID(), subspaceID);
+            String stringRowKey = RowKeyHelper.concatIndexTableStringRowKey(partitionLocation.getPartitionID(), subspaceID);
 
-            if (curveMetaMapCache.containsKey(rowKeyItem.getStringRowKey()) && curveMetaMapCache.get(rowKeyItem.getStringRowKey()) != null) {
-                return curveMetaMapCache.get(rowKeyItem.getStringRowKey());
-            } else if (curveMetaMapCache.containsKey(rowKeyItem.getStringRowKey()) && curveMetaMapCache.get(rowKeyItem.getStringRowKey()) == null) {
+            if (curveMetaMapCache.containsKey(stringRowKey) && curveMetaMapCache.get(stringRowKey) != null) {
+                return curveMetaMapCache.get(stringRowKey);
+            } else if (curveMetaMapCache.containsKey(stringRowKey) && curveMetaMapCache.get(stringRowKey) == null) {
                 // jump to default config
             }
             else {
 
                 try {
+                    RowKeyItem rowKeyItem = RowKeyHelper.generateCurveMetaTableRowKey(partitionLocation.getPartitionID(), subspaceID);
                     Result result = hBaseDriver.get(CURVE_META_TABLE, rowKeyItem.getBytesRowKey());
                     if (result.getRow() != null) {
 
@@ -108,6 +154,8 @@ public class PartitionCurveStrategyHelper {
                     e.printStackTrace();
                 }
             }
+
+
         }
 
         if (partitionLocation.getNormalizedPartitionLength() == VirtualLayerConfiguration.TEMPORAL_PARTITION_A_LENGTH

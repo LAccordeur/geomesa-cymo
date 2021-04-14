@@ -35,7 +35,7 @@ import java.util.*;
  * @Date 2019/4/29 15:25
  * @Created by rogerguo
  */
-public class NYCTaxiFormattedDataTest implements CommonData {
+public class NYCTaxiFormattedDataTestSynthetic implements CommonData {
     private SimpleFeatureType sft = null;
     private List<SimpleFeature> features = null;
     private List<Query> queries = null;
@@ -211,18 +211,9 @@ public class NYCTaxiFormattedDataTest implements CommonData {
             try {
                 List<Query> queries = new ArrayList<>();
 
-                // note: DURING is endpoint exclusive
-                String warmDuring = "dtg DURING 2011-01-12T15:00:00.000Z/2011-01-12T16:59:59.000Z";
-                // bounding box over most of the united states
-                String warmBbox = "bbox(geom,-73.960000, -73.860000, 40.632000,40.732000)";
-                // basic warm spatio-temporal query
-                Query warmQuery = new Query(getTypeName(), ECQL.toFilter(warmBbox + " AND " + warmDuring));
-                warmQuery.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
-
                 int count = 0;
-                queries.add(warmQuery);
                 try {
-                    BufferedReader in = new BufferedReader(new FileReader("E:\\Projects\\idea\\geomesa-cymo\\geomesa-test\\src\\main\\resources\\query\\production_workload_190thousand_sorted_sample.csv"));
+                    BufferedReader in = new BufferedReader(new FileReader("G:\\DataSet\\synthetic\\synthetic_1_30d_60_all_drz"));
                     String str;
                     while ((str = in.readLine()) != null) {
                         String[] items = str.split(",");
@@ -234,115 +225,26 @@ public class NYCTaxiFormattedDataTest implements CommonData {
                         String lonMax = items[4];
                         String latMin = items[5];
                         String latMax = items[6];
-                        if (Double.valueOf(lonMin) >= boundingLonMin
-                        && Double.valueOf(lonMax) <= boundingLonMax
-                        && Double.valueOf(latMin) >= boundingLatMin
-                        && Double.valueOf(latMax) <= boundingLatMax
-                        && timestampMin >= boundingTimestampMin
-                        && timestampMax <= boundingTimestampMax) {
-                            String[] dateMinItems = timeMin.split(" ");
-                            String[] dateMaxItems = timeMax.split(" ");
-                            String during = String.format("dtg DURING %sT%s.000Z/%sT%s.000z", dateMinItems[0], dateMinItems[1], dateMaxItems[0], dateMaxItems[1]);
-                            String bbox = String.format("bbox(geom,%s, %s, %s,%s)", lonMin, lonMax, latMin, latMax);
-                            System.out.println(during);
-                            System.out.println(bbox);
-                            Query query = new Query(getTypeName(), ECQL.toFilter(bbox + " AND " + during));
-                            query.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
-                            count++;
-                            if (count % 10 == 0) {
-                                queries.add(query);
-                            }
-                        }
+
+                        String[] dateMinItems = timeMin.split(" ");
+                        String[] dateMaxItems = timeMax.split(" ");
+                        String during = String.format("dtg DURING %sT%s.000Z/%sT%s.000z", dateMinItems[0], dateMinItems[1], dateMaxItems[0], dateMaxItems[1]);
+                        String bbox = String.format("bbox(geom,%s, %s, %s,%s)", lonMin, lonMax, latMin, latMax);
+                        System.out.println(during);
+                        System.out.println(bbox);
+                        Query query = new Query(getTypeName(), ECQL.toFilter(bbox + " AND " + during));
+                        query.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
+                        count++;
+
+                        queries.add(query);
+
+
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
-                //time-precedence query workload
 
-                /*// region A 0,01 1 hour
-                // query 1 0.01, 1 hour
-                String during1 = "dtg DURING 2010-01-12T08:00:00.000Z/2010-01-12T08:59:59.000Z";
-                String bbox1 = "bbox(geom,-73.987000, -73.977000, 40.785000,40.795000)";
-                Query query1 = new Query(getTypeName(), ECQL.toFilter(bbox1 + " AND " + during1));
-                //query4.getHints().put(QueryHints.LOOSE_BBOX(), Boolean.TRUE);
-                query1.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
-
-
-                // query 2 0.01, 1 hour
-                String during2 = "dtg DURING 2010-01-12T12:00:00.000Z/2010-01-12T12:59:59.000Z";
-                String bbox2 = "bbox(geom,-73.987000, -73.977000, 40.725000,40.735000)";
-                Query query2 = new Query(getTypeName(), ECQL.toFilter(bbox2 + " AND " + during2));
-                //query4.getHints().put(QueryHints.LOOSE_BBOX(), Boolean.TRUE);
-                query2.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
-
-                // query 3 0.01, 1 hour
-                String during3 = "dtg DURING 2010-01-22T01:00:00.000Z/2010-01-22T01:59:59.000Z";
-                String bbox3 = "bbox(geom,-73.987000, -73.977000, 40.725000,40.735000)";
-                Query query3 = new Query(getTypeName(), ECQL.toFilter(bbox3 + " AND " + during3));
-                //query4.getHints().put(QueryHints.LOOSE_BBOX(), Boolean.TRUE);
-                query3.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
-
-                // query 4 0.01, 1 hour
-                String during4 = "dtg DURING 2010-01-22T16:00:00.000Z/2010-01-22T16:59:59.000Z";
-                String bbox4 = "bbox(geom,-73.947000, -73.937000, 40.705000,40.715000)";
-                Query query4 = new Query(getTypeName(), ECQL.toFilter(bbox4 + " AND " + during4));
-                //query4.getHints().put(QueryHints.LOOSE_BBOX(), Boolean.TRUE);
-                query4.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
-
-                // query 5 0.01, 1 hour
-                String during5 = "dtg DURING 2010-01-12T04:00:00.000Z/2010-01-12T04:59:59.000Z";
-                String bbox5 = "bbox(geom,-73.957000, -73.947000, 40.725000,40.735000)";
-                Query query5 = new Query(getTypeName(), ECQL.toFilter(bbox5 + " AND " + during5));
-                //query4.getHints().put(QueryHints.LOOSE_BBOX(), Boolean.TRUE);
-                query5.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
-
-                // region B 0.1 1 hour
-
-                // query 6 0.1, 1 hour
-                String during6 = "dtg DURING 2010-01-16T22:00:00.000Z/2010-01-16T22:59:59.000Z";
-                String bbox6 = "bbox(geom,-74.047000, -73.947000, 40.705000,40.805000)";
-                Query query6 = new Query(getTypeName(), ECQL.toFilter(bbox6 + " AND " + during6));
-                //query4.getHints().put(QueryHints.LOOSE_BBOX(), Boolean.TRUE);
-                query6.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
-
-                // query 12 0.1, 1 hour
-                String during7 = "dtg DURING 2010-01-02T18:00:00.000Z/2010-01-02T18:59:59.000Z";
-                String bbox7 = "bbox(geom,-74.047000, -73.947000, 40.725000,40.825000)";
-                Query query7 = new Query(getTypeName(), ECQL.toFilter(bbox7 + " AND " + during7));
-                //query4.getHints().put(QueryHints.LOOSE_BBOX(), Boolean.TRUE);
-                query7.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
-
-                // query 13 0.1, 1 hour
-                String during8 = "dtg DURING 2010-01-02T12:00:00.000Z/2010-01-02T12:59:59.000Z";
-                String bbox8 = "bbox(geom,-74.047000, -73.947000, 40.725000,40.825000)";
-                Query query8 = new Query(getTypeName(), ECQL.toFilter(bbox8 + " AND " + during8));
-                //query4.getHints().put(QueryHints.LOOSE_BBOX(), Boolean.TRUE);
-                query8.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
-
-                // query 14 0.1, 1 hour
-                String during9 = "dtg DURING 2010-01-16T12:00:00.000Z/2010-01-16T12:59:59.000Z";
-                String bbox9 = "bbox(geom,-74.047000, -73.947000, 40.705000,40.805000)";
-                Query query9 = new Query(getTypeName(), ECQL.toFilter(bbox9 + " AND " + during9));
-                //query4.getHints().put(QueryHints.LOOSE_BBOX(), Boolean.TRUE);
-                query9.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
-
-                // query 15 0.1, 1 hour
-                String during10 = "dtg DURING 2010-01-29T12:00:00.000Z/2010-01-29T12:59:59.000Z";
-                String bbox10 = "bbox(geom,-74.057000, -73.957000, 40.705000,40.805000)";
-                Query query10 = new Query(getTypeName(), ECQL.toFilter(bbox10 + " AND " + during10));
-                //query4.getHints().put(QueryHints.LOOSE_BBOX(), Boolean.TRUE);
-                query10.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
-
-
-
-                //queries.add(warmQuery);
-                //queries.add(query1);
-                //queries.add(query1);
-                queries.add(query1);
-                //queries.add(query2);*/
-
-                //System.out.println("Query size: " + count);
 
                 this.queries = Collections.unmodifiableList(queries);
             } catch (Exception e) {

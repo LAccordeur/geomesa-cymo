@@ -49,6 +49,7 @@ public abstract class GeoMesaClient implements Runnable {
         this(args, parameters, data, true);
     }
 
+
     public GeoMesaClient(String[] args, Param[] parameters, CommonData data, boolean readOnly) throws ParseException {
         // parse the data store parameters from the command line
         Options options = createOptions(parameters);
@@ -82,9 +83,10 @@ public abstract class GeoMesaClient implements Runnable {
             } else {
                 SimpleFeatureType sft = getSimpleFeatureType(data);
                 createSchema(datastore, sft);
-                /*List<SimpleFeature> features = getTestFeatures(data);
-                writeFeatures(datastore, sft, features);*/
+                long writeStart = System.currentTimeMillis();
                 writeTestFeatures(data, this, sft, datastore);
+                long writeStop = System.currentTimeMillis();
+                System.out.println("Write takes " + (writeStop - writeStart));
             }
 
             List<Query> queries = getTestQueries(data);
@@ -94,6 +96,7 @@ public abstract class GeoMesaClient implements Runnable {
             long stopTime = System.currentTimeMillis();
             System.out.println("Total time: ");
             System.out.println(stopTime - startTime);
+            System.out.println("Query num: " + queries.size());
         } catch (Exception e) {
             throw new RuntimeException("Error running quickstart:", e);
         } finally {
@@ -259,6 +262,8 @@ public abstract class GeoMesaClient implements Runnable {
             long stopTime = System.currentTimeMillis();
             // System.out.println("This query consumes" + (stopTime - startTime) + "ms");
             System.out.println((stopTime - startTime));
+            String record = String.format("%s,%s\n", ECQL.toCQL(query.getFilter()), (stopTime-startTime));
+            TimeRecorder.recordTime("G:\\DataSet\\synthetic\\log\\synthetic_1_30d_60_all_drz.cymo.noagg.nobitmap.csv", record);
         }
     }
 

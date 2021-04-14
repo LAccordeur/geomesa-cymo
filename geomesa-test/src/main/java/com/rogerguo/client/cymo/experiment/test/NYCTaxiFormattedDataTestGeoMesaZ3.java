@@ -48,7 +48,7 @@ public class NYCTaxiFormattedDataTestGeoMesaZ3 implements CommonData {
     @Override
     public String getTypeName() {
         //return "nyc-taxi-data-month1-xzprecision20-geomprecision7";
-        return "nyc-taxi-data-test-new-geomesa-baseline";
+        return "nyc-taxi-data-geomesa-baseline";
     }
 
     @Override
@@ -70,6 +70,7 @@ public class NYCTaxiFormattedDataTestGeoMesaZ3 implements CommonData {
             sft.getUserData().put(SimpleFeatureTypes.DEFAULT_DATE_KEY, "dtg");
 
             sft.getUserData().put("geomesa.indices.enabled", "z3");
+            //sft.getUserData().put("geomesa.indices.enabled", "z2");
 
         }
         return sft;
@@ -191,8 +192,8 @@ public class NYCTaxiFormattedDataTestGeoMesaZ3 implements CommonData {
     public List<Query> getTestQueries() {
         if (queries == null) {
 
-            Double boundingLonMin = -74.0;
-            Double boundingLonMax = -73.70;
+            Double boundingLonMin = -74.05;
+            Double boundingLonMax = -73.75;
             Double boundingLatMin = 40.60;
             Double boundingLatMax = 40.90;
             long boundingTimestampMin = IndexingSchemeDecider.fromDateToTimestamp("2010-01-01 00:00:00");
@@ -211,7 +212,7 @@ public class NYCTaxiFormattedDataTestGeoMesaZ3 implements CommonData {
                 int count = 0;
                 queries.add(warmQuery);
                 try {
-                    BufferedReader in = new BufferedReader(new FileReader("E:\\Projects\\idea\\geomesa-cymo\\geomesa-test\\src\\main\\resources\\query\\workload_1_next_passenger_sample.csv"));
+                    BufferedReader in = new BufferedReader(new FileReader("G:\\DataSet\\synthetic\\synthetic_001_1h_600_zipf"));
                     String str;
                     while ((str = in.readLine()) != null) {
                         String[] items = str.split(",");
@@ -238,9 +239,10 @@ public class NYCTaxiFormattedDataTestGeoMesaZ3 implements CommonData {
                             Query query = new Query(getTypeName(), ECQL.toFilter(bbox + " AND " + during));
                             //query.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
                             count++;
-                            if (count % 100 == 0) {
+                            if (count % 10 == 0) {
                                 queries.add(query);
                             }
+
                         }
                     }
                 } catch (IOException e) {

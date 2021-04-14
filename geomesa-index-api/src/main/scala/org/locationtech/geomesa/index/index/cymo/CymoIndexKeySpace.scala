@@ -75,7 +75,7 @@ class CymoIndexKeySpace(val sft: SimpleFeatureType,
     import com.rogerguo.cymo.hbase._
 
     // TODO check the time format
-    val cymoRowKeyItem : RowKeyItem = RowKeyHelper.generateDataTableRowKey(geom.getX, geom.getY, time)
+    val cymoRowKeyItem : RowKeyItem = RowKeyHelper.generateDataTableRowKeyForGeoMesa(geom.getX, geom.getY, time)
     val bytesRowKey = cymoRowKeyItem.getBytesRowKey
 
     val shard = sharding(writable)

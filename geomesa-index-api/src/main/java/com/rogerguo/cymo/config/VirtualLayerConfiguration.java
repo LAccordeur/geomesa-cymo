@@ -38,10 +38,16 @@ public class VirtualLayerConfiguration {
         curveTypeMap.put("CURVE_T1X7Y7", CurveType.CURVE_T1X7Y7);
         curveTypeMap.put("Z_CURVE", CurveType.Z_CURVE);
         curveTypeMap.put("Z_CURVE_TXY",CurveType.Z_CURVE_TXY);
+        curveTypeMap.put("CURVE_X1Y1T5", CurveType.CURVE_X1Y1T5);
+        curveTypeMap.put("CURVE_X1Y1T8", CurveType.CURVE_X1Y1T8);
+        curveTypeMap.put("CURVE_X3Y3T5", CurveType.CURVE_X3Y3T5);
+        curveTypeMap.put("CURVE_X3Y3T8", CurveType.CURVE_X3Y3T8);
+        curveTypeMap.put("CURVE_T5X7Y7", CurveType.CURVE_T5X7Y7);
+        curveTypeMap.put("CURVE_X7Y7T8", CurveType.CURVE_X7Y7T8);
 
         configMap = new HashMap<>();
         try {
-            BufferedReader in = new BufferedReader(new FileReader("E:\\Projects\\idea\\geomesa-cymo\\geomesa-index-api\\src\\main\\resources\\cymo\\conf\\test_dynamic.conf"));
+            BufferedReader in = new BufferedReader(new FileReader("E:\\Projects\\idea\\geomesa-cymo\\geomesa-index-api\\src\\main\\resources\\cymo\\conf\\test_synthetic_month1_xyt115_noagg.conf"));
             String str;
             while ((str = in.readLine()) != null) {
                 String[] confPair = str.split("=");

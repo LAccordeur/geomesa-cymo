@@ -8,23 +8,11 @@ import java.util.Map;
  * @Author GUO Yang
  * @Date 2020-01-19 6:27 PM
  */
-public class CustomCurveXYT implements SpaceFillingCurve {
+public class CurveT5X7Y7 implements SpaceFillingCurve {
 
     private static int count = 0;
 
     private static int precision = 21;
-
-    private int bitNumberX;
-
-    private int bitNumberY;
-
-    private int bitNumberT;
-
-    public CustomCurveXYT(int bitNumberX, int bitNumberY, int bitNumberT) {
-        this.bitNumberX = bitNumberX;
-        this.bitNumberY = bitNumberY;
-        this.bitNumberT = bitNumberT;
-    }
 
     @Override
     public String getCurveValueString(int x, int y) {
@@ -49,12 +37,12 @@ public class CustomCurveXYT implements SpaceFillingCurve {
         //count++;
         //System.out.println(count);
         return Long.valueOf(curveBinaryString, 2);*/
-        return generateCurveEfficiently(x, y, z, bitNumberX, bitNumberY, bitNumberT);
+        return generateCurveEfficiently(z, x, y, 5, 7, 7);
     }
 
     @Override
     public Map<String, Integer> from3DCurveValue(long curveValue) {
-        return from3DCurveEfficiently(curveValue, bitNumberX, bitNumberY, bitNumberT);
+        return from3DCurveEfficiently(curveValue, 5, 7, 7);
     }
 
     @Override
@@ -68,7 +56,6 @@ public class CustomCurveXYT implements SpaceFillingCurve {
     private static Map<Integer, Long> BIT_MASK_MAP = new HashMap<>();
 
     static {
-        BIT_MASK_MAP.put(0, 0x0L);
         BIT_MASK_MAP.put(1, 0x1L);
         BIT_MASK_MAP.put(2, 0x3L);
         BIT_MASK_MAP.put(3, 0x7L);
@@ -91,6 +78,36 @@ public class CustomCurveXYT implements SpaceFillingCurve {
         BIT_MASK_MAP.put(20, 0xfffffL);
         BIT_MASK_MAP.put(21, 0x1fffffL);
     }
+
+    /**
+     *
+     * @param value
+     * @param bitNumberX
+     * @param bitNumberY
+     * @param bitNumberT
+     * @return
+     */
+    public static Map<String, Integer> from3DCurveEfficiently(long value, int bitNumberX, int bitNumberY, int bitNumberT) {
+        int remainBitNumberX = precision - bitNumberX;
+        int remainBitNumberY = precision - bitNumberY;
+        int remainBitNumberT = precision - bitNumberT;
+
+        long tempX = value;
+        long tempY = value;
+        long tempT = value;
+
+        tempT = (value & BIT_MASK_MAP.get(bitNumberT)) | (((value >> (bitNumberX + bitNumberY + bitNumberT)) & BIT_MASK_MAP.get(remainBitNumberT)) << bitNumberT);
+        tempY = ((value >> bitNumberT) & BIT_MASK_MAP.get(bitNumberY)) | (((value >> (bitNumberX + bitNumberY + precision)) & BIT_MASK_MAP.get(remainBitNumberY)) << bitNumberY);
+        tempX = ((value >> (bitNumberT + bitNumberY)) & BIT_MASK_MAP.get(bitNumberX)) | (((value >> (bitNumberX + precision + precision)) & BIT_MASK_MAP.get(remainBitNumberX)) << bitNumberX);
+
+        Map<String, Integer> resultMap = new HashMap<>();
+        resultMap.put("z", (int)tempX);
+        resultMap.put("x", (int)tempY);
+        resultMap.put("y", (int)tempT);
+        //System.out.println(value);
+        return resultMap;
+    }
+
     /**
      * xyt
      * @param x
@@ -120,35 +137,6 @@ public class CustomCurveXYT implements SpaceFillingCurve {
 
         //System.out.println(value);
         return value;
-    }
-
-    /**
-     *
-     * @param value
-     * @param bitNumberX
-     * @param bitNumberY
-     * @param bitNumberT
-     * @return
-     */
-    public static Map<String, Integer> from3DCurveEfficiently(long value, int bitNumberX, int bitNumberY, int bitNumberT) {
-        int remainBitNumberX = precision - bitNumberX;
-        int remainBitNumberY = precision - bitNumberY;
-        int remainBitNumberT = precision - bitNumberT;
-
-        long tempX = value;
-        long tempY = value;
-        long tempT = value;
-
-        tempT = (value & BIT_MASK_MAP.get(bitNumberT)) | (((value >> (bitNumberX + bitNumberY + bitNumberT)) & BIT_MASK_MAP.get(remainBitNumberT)) << bitNumberT);
-        tempY = ((value >> bitNumberT) & BIT_MASK_MAP.get(bitNumberY)) | (((value >> (bitNumberX + bitNumberY + precision)) & BIT_MASK_MAP.get(remainBitNumberY)) << bitNumberY);
-        tempX = ((value >> (bitNumberT + bitNumberY)) & BIT_MASK_MAP.get(bitNumberX)) | (((value >> (bitNumberX + precision + precision)) & BIT_MASK_MAP.get(remainBitNumberX)) << bitNumberX);
-
-        Map<String, Integer> resultMap = new HashMap<>();
-        resultMap.put("x", (int)tempX);
-        resultMap.put("y", (int)tempY);
-        resultMap.put("z", (int)tempT);
-        //System.out.println(value);
-        return resultMap;
     }
 
     public static String generateCurve(int x, int y, int t, int bitNumberX, int bitNumberY, int bitNumberT) {

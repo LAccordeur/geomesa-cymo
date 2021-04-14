@@ -16,18 +16,18 @@ import java.util.*;
 public class EvaluateIndexingScheme {
 
 
-    /*public static void main(String[] args) {
+    public static void main(String[] args) {
         //System.out.println(Math.ceil((Math.log(8) / Math.log(2))));
         List<QueryPattern> queryPatternList = new ArrayList<>();
-        QueryPattern queryPattern1 = new QueryPattern(72, 72, 1, 0.9, 0.5*0.5);
+        QueryPattern queryPattern1 = new QueryPattern(72, 72, 167, 1, 1);
         queryPatternList.add(queryPattern1);
         QueryPattern queryPattern2 = new QueryPattern(7, 7, 1, 0.1, 0.5*0.5);
-        queryPatternList.add(queryPattern2);
+        //queryPatternList.add(queryPattern2);
         QueryPattern queryPattern3 = new QueryPattern(16, 16, 512, 0.2, 0.2);
         //queryPatternList.add(queryPattern3);
 
         System.out.println(evaluateIndexing(queryPatternList));
-    }*/
+    }
 
     private static Map<CurveType, List<Long>> curveIdListMap = new HashMap<>();
 
@@ -39,7 +39,7 @@ public class EvaluateIndexingScheme {
             int bitLengthX = (int) Math.ceil((Math.log(pattern.getLongitudeWidth()) / Math.log(2)));
             int bitLengthY = (int) Math.ceil((Math.log(pattern.getLatitudeWidth()) / Math.log(2)));
             int bitLengthT = (int) Math.ceil((Math.log(pattern.getTimeWidth() == 1 ? 1+0.1 : pattern.getTimeWidth()) / Math.log(2)));
-
+            System.out.println(pattern);
             if (bitLengthX < bitLengthT && bitLengthY < bitLengthT) {
                 CurveMeta layoutGeneratorXYT = new CurveMeta(CurveType.CUSTOM_CURVE_XYT, bitLengthX, bitLengthY, bitLengthT, 0, 0, 0);
                 double costXYT = estimateOneSetOfQueryPatterns(queryPatternList, layoutGeneratorXYT);

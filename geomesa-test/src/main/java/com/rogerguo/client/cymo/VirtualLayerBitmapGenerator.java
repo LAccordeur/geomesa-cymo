@@ -52,10 +52,12 @@ public class VirtualLayerBitmapGenerator {
                 new SpatialRange(40.000000,42.999999),
                 new TimeRange(fromDateToTimestamp("2010-01-01 00:00:00"), fromDateToTimestamp("2011-01-31 23:59:59")));
 */
-
-        String dataTable = "geomesa_cymo_test_new_nyc_2dtaxi_2ddata_2dtest_2dnew_2ddynamic_cymo_geom_dtg_v1";
+        long start = System.currentTimeMillis();
+        String dataTable = "geomesa_cymo_synthetic_nyc_2dtaxi_2ddata_2dsynthetic_2dxyt778_cymo_geom_dtg_v1";
         //dataTable = "geomesa_cymo_test_new_nyc_2dtaxi_2ddata_2dtest_2dnew_2done_2drecord_cymo_geom_dtg_v1";
         generator.generatePointCount(dataTable);
+        long stop = System.currentTimeMillis();
+        System.out.println((stop-start));
 
     }
 

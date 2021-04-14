@@ -69,6 +69,45 @@ public class RowKeyHelper {
 
     }
 
+    public static long getRowKeyTimeCount = 0L;
+    public static RowKeyItem generateDataTableRowKeyForGeoMesa(double longitude, double latitude, long time) {
+
+        // 1. normalized
+        NormalizedLocation normalizedLocation = null;
+        if (isNormalized) {
+            normalizedLocation = new NormalizedLocation((int)longitude, (int)latitude, (int)time);
+        } else {
+            int normalizedLon = NormalizedDimensionHelper.normalizedLon(longitude);
+            int normalizedLat = NormalizedDimensionHelper.normalizedLat(latitude);
+            int normalizedTime = NormalizedDimensionHelper.normalizedTime(VirtualLayerConfiguration.TEMPORAL_VIRTUAL_GRANULARITY, time);
+            normalizedLocation = new NormalizedLocation(normalizedLon, normalizedLat, normalizedTime);
+        }
+
+        // 2. transform to virtual space
+        CellLocation cell = VirtualSpaceTransformationHelper.toCellLocation(normalizedLocation);
+
+        //CellLocation firstCellLocationOfThisSubspace = VirtualSpaceTransformationHelper.getFirstCellLocationOfThisSubspace(cell);
+
+        NormalizedLocation firstCellNormalizedLocation = VirtualSpaceTransformationHelper.fromSubspaceLocation(cell.getPartitionID(), cell.getSubspaceLongitude(), cell.getSubspaceLatitude());
+        int firstCellLocationOfThisSubspaceLongitude = firstCellNormalizedLocation.getX() / VirtualLayerConfiguration.SPATIAL_VIRTUAL_LONGITUDE_GRANULARITY;
+        int firstCellLocationOfThisSubspaceLatitude = firstCellNormalizedLocation.getY() / VirtualLayerConfiguration.SPATIAL_VIRTUAL_LATITUDE_GRANULARITY;
+        int firstCellLocationOfThisSubspaceTime = firstCellNormalizedLocation.getT();
+
+
+        // 3. curve encoding
+        //long virtualCellID = CurveTransformationHelper.generate3D(cell.getCurveMeta(), cell.getCellLongitude() - firstCellLocationOfThisSubspace.getCellLongitude(), cell.getCellLatitude() - firstCellLocationOfThisSubspace.getCellLatitude(), cell.getCellTime() - firstCellLocationOfThisSubspace.getCellTime());
+        long virtualCellID = CurveTransformationHelper.generate3D(cell.getCurveMeta(), cell.getCellLongitude() - firstCellLocationOfThisSubspaceLongitude, cell.getCellLatitude() - firstCellLocationOfThisSubspaceLatitude, cell.getCellTime() - firstCellLocationOfThisSubspaceTime);
+
+        long virtualSpaceID = CurveTransformationHelper.generate2D(new CurveMeta(VirtualLayerConfiguration.DEFAULT_STRATEGY), cell.getSubspaceLongitude(), cell.getSubspaceLatitude());
+        int partitionID = cell.getPartitionID();
+
+
+
+        // 4. generate key
+        return new RowKeyItem(concatDataTableByteRowKey(partitionID, virtualSpaceID, virtualCellID), null, time, partitionID, virtualSpaceID, virtualCellID, (byte)0, cell.toString());
+
+    }
+
     public static RowKeyItem generateIndexTableRowKey(double longitude, double latitude, long time) {
         // 1. normalized
         NormalizedLocation normalizedLocation = null;

@@ -68,6 +68,7 @@ public class CustomCurveTXY implements SpaceFillingCurve {
     private static Map<Integer, Long> BIT_MASK_MAP = new HashMap<>();
 
     static {
+        BIT_MASK_MAP.put(0, 0x0L);
         BIT_MASK_MAP.put(1, 0x1L);
         BIT_MASK_MAP.put(2, 0x3L);
         BIT_MASK_MAP.put(3, 0x7L);

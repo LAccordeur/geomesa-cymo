@@ -8,6 +8,7 @@
 
 package com.rogerguo.client.cymo.experiment.test;
 
+import com.rogerguo.client.cymo.experiment.data.CommonData;
 import org.apache.commons.cli.ParseException;
 import org.locationtech.geomesa.hbase.data.HBaseDataStoreFactory;
 
@@ -15,7 +16,11 @@ public class HBaseClient extends GeoMesaClient {
 
 
     public HBaseClient(String[] args) throws ParseException {
-        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataTest());
+        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataTestSynthetic());
+    }
+
+    public HBaseClient(String[] args, CommonData data, boolean readOnly) throws ParseException {
+        super(args, new HBaseDataStoreFactory().getParametersInfo(), data, readOnly);
     }
 
     public static void main(String[] args) {
