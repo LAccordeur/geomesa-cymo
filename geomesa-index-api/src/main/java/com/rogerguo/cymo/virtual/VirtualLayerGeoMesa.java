@@ -22,6 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -193,6 +196,106 @@ public class VirtualLayerGeoMesa {
         Collections.sort(cellIDList10);
         cachedCellIDMap.put(cachedCellIDMapKey10, cellIDList10);
 
+
+        String cachedCellIDMapKey11 = CurveType.CURVE_T1X4Y4.toString() + "_" + VirtualLayerConfiguration.TEMPORAL_PARTITION_A_LENGTH;
+        List<Long> cellIDList11 = new ArrayList<>();
+        for (int n = 0; n < VirtualLayerConfiguration.TEMPORAL_PARTITION_A_LENGTH; n++) {
+            for (int i = 0; i < VirtualSpaceTransformationHelper.getSubspaceLongitudeCellLength(); i++) {
+                for (int j = 0; j < VirtualSpaceTransformationHelper.getSubspaceLatitudeCellLength(); j++) {
+                    cellIDList11.add(CurveTransformationHelper.generate3D(new CurveMeta(CurveType.CURVE_T1X4Y4), i, j, n));
+                }
+            }
+        }
+        Collections.sort(cellIDList11);
+        cachedCellIDMap.put(cachedCellIDMapKey11, cellIDList11);
+
+        String cachedCellIDMapKey12 = CurveType.CURVE_T1X4Y4.toString() + "_" + VirtualLayerConfiguration.TEMPORAL_PARTITION_B_LENGTH;
+        List<Long> cellIDList12 = new ArrayList<>();
+        for (int n = 0; n < VirtualLayerConfiguration.TEMPORAL_PARTITION_B_LENGTH; n++) {
+            for (int i = 0; i < VirtualSpaceTransformationHelper.getSubspaceLongitudeCellLength(); i++) {
+                for (int j = 0; j < VirtualSpaceTransformationHelper.getSubspaceLatitudeCellLength(); j++) {
+                    cellIDList12.add(CurveTransformationHelper.generate3D(new CurveMeta(CurveType.CURVE_T1X4Y4), i, j, n));
+                }
+            }
+        }
+        Collections.sort(cellIDList12);
+        cachedCellIDMap.put(cachedCellIDMapKey12, cellIDList12);
+
+    }
+
+    static {
+        // bitmap cache initialization
+        SpatialRange longitudeRange = new SpatialRange(-74.2, -73.5);
+        SpatialRange latitudeRange = new SpatialRange(40.40, 41.10);
+        TimeRange timeRange = new TimeRange(fromDateToTimestamp("2010-01-01 00:00:00"), fromDateToTimestamp("2010-01-31 23:00:00"));
+
+        NormalizedRange normalizedLongitudeRange = new NormalizedRange(NormalizedDimensionHelper.normalizedLon(longitudeRange.getLowBound()), NormalizedDimensionHelper.normalizedLon(longitudeRange.getHighBound()));
+        NormalizedRange normalizedLatitudeRange = new NormalizedRange(NormalizedDimensionHelper.normalizedLat(latitudeRange.getLowBound()), NormalizedDimensionHelper.normalizedLat(latitudeRange.getHighBound()));
+        NormalizedRange normalizedTimeRange = new NormalizedRange(NormalizedDimensionHelper.normalizedTime(VirtualLayerConfiguration.TEMPORAL_VIRTUAL_GRANULARITY, timeRange.getLowBound()), NormalizedDimensionHelper.normalizedTime(VirtualLayerConfiguration.TEMPORAL_VIRTUAL_GRANULARITY, timeRange.getHighBound()));
+
+        // 1. normalize
+        NormalizedLocation leftDownLocation = new NormalizedLocation(normalizedLongitudeRange.getLowBound(), normalizedLatitudeRange.getLowBound(), normalizedTimeRange.getLowBound());
+        NormalizedLocation rightUpLocation = new NormalizedLocation(normalizedLongitudeRange.getHighBound(), normalizedLatitudeRange.getHighBound(), normalizedTimeRange.getHighBound());
+
+        // 2. transform to virtual layer and generate row key list
+        List<RowKeyItem> bitmapTableRowKeyList = RowKeyHelper.generateBitmapTableRowKeyList(leftDownLocation, rightUpLocation);
+
+        List<Get> basicGetList = new ArrayList<>();
+        for (RowKeyItem key : bitmapTableRowKeyList) {
+            if (!fetchedBitmapRowKeySet.contains(key.getStringRowKey())) {
+                fetchedBitmapRowKeySet.add(key.getStringRowKey());
+                Get basicGet = new Get(Bytes.toBytes(key.getStringRowKey()));
+                basicGet.addFamily(Bytes.toBytes("agg"));
+                basicGetList.add(basicGet);
+            }
+
+        }
+
+        HBaseDriver staticHBaseDriver = new HBaseDriver("127.0.0.1");
+        Result[] results = null;
+        try {
+            results = staticHBaseDriver.batchGet(VIRTUAL_LAYER_INFO_TABLE, basicGetList);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (results != null && results.length > 0) {
+            // count of one cell in the subspace
+            for (Result result : results) {
+                List<Cell> cellList = result.listCells();
+                if (cellList != null && cellList.size() == 2) {
+
+
+                    byte[] rowKey = result.getRow();
+                    Map<String, String> parsedRowKey = RowKeyHelper.fromIndexStringRowKey(Bytes.toString(rowKey));
+
+                    Cell basicCell = cellList.get(0);
+                    byte[] basicBitmapValue = CellUtil.cloneValue(basicCell);
+                    String basicBitmapString = Bytes.toString(basicBitmapValue);
+                    List<Long> basicBitmapResult = fromString2ListValues(basicBitmapString);
+
+                    Cell extraCell = cellList.get(1);
+                    byte[] extraBitmapValue = CellUtil.cloneValue(extraCell);
+                    String extraBitmapString = Bytes.toString(extraBitmapValue);
+                    List<Long> extraBitmapResult = fromString2ListValues(extraBitmapString);
+
+                    // cache start
+                    String basicCacheKey = String.format("%s,%s,%s", parsedRowKey.get("partitionID"), parsedRowKey.get("subspaceID"), "basic"); // partition_id + subspace_id + type
+                    String extraCacheKey = String.format("%s,%s,%s", parsedRowKey.get("partitionID"), parsedRowKey.get("subspaceID"), "extra");
+                    cachedBitmapMap.put(basicCacheKey, basicBitmapResult);
+                    cachedBitmapMap.put(extraCacheKey, extraBitmapResult);
+                    // cache end
+                }
+            }
+        }
+
+        System.out.println("finish bitmap cache");
+    }
+
+    public static long fromDateToTimestamp(String dateString) {
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.US);
+        long time = Date.from(LocalDateTime.parse(dateString, dateFormat).toInstant(ZoneOffset.UTC)).getTime();
+        return time;
     }
 
     public List<SubScanRangePair> getRanges(SpatialRange longitudeRange, SpatialRange latitudeRange, TimeRange timeRange) throws IOException {

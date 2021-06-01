@@ -48,6 +48,11 @@ public class BinnedTime {
         switch (timePeriod){
             case HOUR:  return toHour(timestamp);
             case DAY:   return toDay(timestamp);
+            case MIN10: return toMin10(timestamp);
+            case MIN30: return toMin30(timestamp);
+            case MINUTE: return toMinute(timestamp);
+            case MIN2: return toMin2(timestamp);
+            case MIN5: return toMin5(timestamp);
             //case WEEK:  return toWeek(timestamp);
             //case MONTH: return toMonth(timestamp);
             //case YEAR:  return toYear(timestamp);
@@ -87,6 +92,30 @@ public class BinnedTime {
         return secondOffset;
     }
 
+    private int toMinute(long timestamp) {
+        return toMinute(ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC));
+    }
+
+    private int toMin2(long timestamp) {
+        int epochMinute = toMinute(ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC));
+        return (int)(epochMinute / 2);
+    }
+
+    private int toMin5(long timestamp) {
+        int epochMinute = toMinute(ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC));
+        return (int)(epochMinute / 5);
+    }
+
+    private int toMin10(long timestamp) {
+        int epochMinute = toMinute(ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC));
+        return (int)(epochMinute / 10);
+    }
+
+    private int toMin30(long timestamp) {
+        int epochMinute = toMinute(ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC));
+        return (int)(epochMinute / 30);
+    }
+
     private int toHour(long timestamp) {
         return toHour(ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC));
     }
@@ -115,6 +144,23 @@ public class BinnedTime {
         }*/
 
         return (int)ChronoUnit.HOURS.between(epoch, date);
+    }
+
+    private int toMinute(ZonedDateTime date) {
+
+        if (date.isBefore(zMinDate)) {
+            return 0;
+        }
+
+        if (!hoursMaxDate.isAfter(date)) {
+            return maxBin;
+        }
+
+        /*if (date.isBefore(zMinDate) || !hoursMaxDate.isAfter(date)) {
+            return -1;
+        }*/
+
+        return (int)ChronoUnit.MINUTES.between(epoch, date);
     }
 
     private int toDay(long timestamp) {

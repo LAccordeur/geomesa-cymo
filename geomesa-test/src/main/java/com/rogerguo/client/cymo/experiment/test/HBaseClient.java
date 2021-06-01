@@ -15,17 +15,30 @@ import org.locationtech.geomesa.hbase.data.HBaseDataStoreFactory;
 public class HBaseClient extends GeoMesaClient {
 
 
-    public HBaseClient(String[] args) throws ParseException {
-        super(args, new HBaseDataStoreFactory().getParametersInfo(), new NYCTaxiFormattedDataTestSynthetic());
-    }
 
-    public HBaseClient(String[] args, CommonData data, boolean readOnly) throws ParseException {
-        super(args, new HBaseDataStoreFactory().getParametersInfo(), data, readOnly);
+    public HBaseClient(String[] args, CommonData data, boolean readOnly, String logFilename) throws ParseException {
+        super(args, new HBaseDataStoreFactory().getParametersInfo(), data, readOnly, logFilename);
     }
 
     public static void main(String[] args) {
         try {
-            new HBaseClient(args).run();
+//            String logFilename = "G:\\DataSet\\production-next-passenger\\response-time-log\\production.double.04.05.cymo.ztxy.test.48.24.min2.3.csv";
+//            String queryFilename = "G:\\DataSet\\production-next-passenger\\workload_1_next_passenger_04_05_sample";
+
+//            String logFilename = "G:\\DataSet\\production-v4\\response-time-log\\production.geomesa.z3.day.05_05.csv";
+//            String queryFilename = "G:\\DataSet\\production-v4\\workload_1_next_passenger_05_05_sample";
+
+            String logFilename = "G:\\DataSet\\production-v4\\response-time-log\\production.cymo.space.test.48.24.min5.05.05.csv";
+            String queryFilename = "G:\\DataSet\\production-v4\\workload_1_next_passenger_05_05_sample";
+
+            String dataFilename = "E:\\Projects\\idea\\geomesa-cymo\\geomesa-test\\src\\main\\resources\\dataset\\trip_data_1_pickup.csv";
+            CommonData data = new NYCTaxiFormattedDataTestSynthetic(queryFilename, dataFilename);
+            //CommonData data = new NYCTaxiFormattedDataTestGeoMesaZ3Day(queryFilename, dataFilename);
+            //CommonData data = new NYCTaxiFormattedDataTestGeoMesaZ3DayDouble(queryFilename, dataFilename);
+            //CommonData data = new NYCTaxiFormattedDataTestGeoMesaZ3Synthetic(queryFilename, dataFilename);
+            HBaseClient client = new HBaseClient(args, data, true, logFilename);
+            client.myExecute();
+            //client.myExecute();
         } catch (ParseException e) {
             System.exit(1);
         } catch (Throwable e) {

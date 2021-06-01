@@ -243,7 +243,7 @@ public class NYCTaxiFormattedDataTest implements CommonData {
                             String[] dateMinItems = timeMin.split(" ");
                             String[] dateMaxItems = timeMax.split(" ");
                             String during = String.format("dtg DURING %sT%s.000Z/%sT%s.000z", dateMinItems[0], dateMinItems[1], dateMaxItems[0], dateMaxItems[1]);
-                            String bbox = String.format("bbox(geom,%s, %s, %s,%s)", lonMin, lonMax, latMin, latMax);
+                            String bbox = String.format("bbox(geom,%s, %s, %s,%s)", lonMin, latMin, lonMax,  latMax);
                             System.out.println(during);
                             System.out.println(bbox);
                             Query query = new Query(getTypeName(), ECQL.toFilter(bbox + " AND " + during));

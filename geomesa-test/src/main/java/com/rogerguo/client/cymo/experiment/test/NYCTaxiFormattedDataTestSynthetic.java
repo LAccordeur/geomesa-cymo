@@ -40,10 +40,18 @@ public class NYCTaxiFormattedDataTestSynthetic implements CommonData {
     private List<SimpleFeature> features = null;
     private List<Query> queries = null;
 
+    private String dataFilename;
+    private String queryFilename;
+
     /*@Override
     public String getTypeName() {
         return "nyc-taxi-data-month1-precision18";
     }*/
+
+    public NYCTaxiFormattedDataTestSynthetic(String queryFilename, String dataFilename) {
+        this.dataFilename = dataFilename;
+        this.queryFilename = queryFilename;
+    }
 
     @Override
     public String getTypeName() {
@@ -213,7 +221,7 @@ public class NYCTaxiFormattedDataTestSynthetic implements CommonData {
 
                 int count = 0;
                 try {
-                    BufferedReader in = new BufferedReader(new FileReader("G:\\DataSet\\synthetic\\synthetic_1_30d_60_all_drz"));
+                    BufferedReader in = new BufferedReader(new FileReader(queryFilename));
                     String str;
                     while ((str = in.readLine()) != null) {
                         String[] items = str.split(",");
@@ -229,7 +237,7 @@ public class NYCTaxiFormattedDataTestSynthetic implements CommonData {
                         String[] dateMinItems = timeMin.split(" ");
                         String[] dateMaxItems = timeMax.split(" ");
                         String during = String.format("dtg DURING %sT%s.000Z/%sT%s.000z", dateMinItems[0], dateMinItems[1], dateMaxItems[0], dateMaxItems[1]);
-                        String bbox = String.format("bbox(geom,%s, %s, %s,%s)", lonMin, lonMax, latMin, latMax);
+                        String bbox = String.format("bbox(geom,%s, %s, %s,%s)", lonMin, latMin, lonMax,  latMax);
                         System.out.println(during);
                         System.out.println(bbox);
                         Query query = new Query(getTypeName(), ECQL.toFilter(bbox + " AND " + during));

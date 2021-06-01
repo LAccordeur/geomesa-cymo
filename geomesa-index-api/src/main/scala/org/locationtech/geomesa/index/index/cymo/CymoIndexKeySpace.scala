@@ -142,8 +142,8 @@ class CymoIndexKeySpace(val sft: SimpleFeatureType,
     val spatialRangeArray = xy.toArray
     val temporalRangeArray = temporalBounds.toArray
 
-    val longitudeRange : SpatialRange = new SpatialRange(spatialRangeArray(0)._1, spatialRangeArray(0)._2)
-    val latitudeRange : SpatialRange = new SpatialRange(spatialRangeArray(0)._3, spatialRangeArray(0)._4)
+    val longitudeRange : SpatialRange = new SpatialRange(spatialRangeArray(0)._1, spatialRangeArray(0)._3)
+    val latitudeRange : SpatialRange = new SpatialRange(spatialRangeArray(0)._2, spatialRangeArray(0)._4)
     val timeRange : TimeRange = new TimeRange(temporalRangeArray(0)._1, temporalRangeArray(0)._2);
 
     val scanRangesFromVirtualLayer = virtualLayer.getRanges(longitudeRange, latitudeRange, timeRange)

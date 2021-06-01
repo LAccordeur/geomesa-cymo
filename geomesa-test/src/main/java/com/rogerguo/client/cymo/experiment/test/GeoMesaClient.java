@@ -45,6 +45,8 @@ public abstract class GeoMesaClient implements Runnable {
     private final boolean cleanup;
     private final boolean readOnly;
 
+    private String logFilename;
+
     public GeoMesaClient(String[] args, Param[] parameters, CommonData data) throws ParseException {
         this(args, parameters, data, true);
     }
@@ -58,6 +60,18 @@ public abstract class GeoMesaClient implements Runnable {
         cleanup = command.hasOption("cleanup");
         this.data = data;
         this.readOnly = readOnly;
+        initializeFromOptions(command);
+    }
+
+    public GeoMesaClient(String[] args, Param[] parameters, CommonData data, boolean readOnly, String logFilename) throws ParseException {
+        // parse the data store parameters from the command line
+        Options options = createOptions(parameters);
+        CommandLine command = CommandLineDataStore.parseArgs(getClass(), options, args);
+        params = CommandLineDataStore.getDataStoreParams(command, options);
+        cleanup = command.hasOption("cleanup");
+        this.data = data;
+        this.readOnly = readOnly;
+        this.logFilename = logFilename;
         initializeFromOptions(command);
     }
 
@@ -75,6 +89,37 @@ public abstract class GeoMesaClient implements Runnable {
 
     @Override
     public void run() {
+        DataStore datastore = null;
+        try {
+            datastore = createDataStore(params); //创建一个HBaseDataStore实例
+            if (readOnly) {
+                ensureSchema(datastore, data);
+            } else {
+                SimpleFeatureType sft = getSimpleFeatureType(data);
+                createSchema(datastore, sft);
+                long writeStart = System.currentTimeMillis();
+                writeTestFeatures(data, this, sft, datastore);
+                long writeStop = System.currentTimeMillis();
+                System.out.println("Write takes " + (writeStop - writeStart));
+            }
+
+            List<Query> queries = getTestQueries(data);
+
+            long startTime = System.currentTimeMillis();
+            queryFeatures(datastore, queries);
+            long stopTime = System.currentTimeMillis();
+            System.out.println("Total time: ");
+            System.out.println(stopTime - startTime);
+            System.out.println("Query num: " + queries.size());
+        } catch (Exception e) {
+            throw new RuntimeException("Error running quickstart:", e);
+        } finally {
+            cleanup(datastore, data.getTypeName(), cleanup);
+        }
+        System.out.println("Done");
+    }
+
+    public void myExecute() {
         DataStore datastore = null;
         try {
             datastore = createDataStore(params); //创建一个HBaseDataStore实例
@@ -208,12 +253,11 @@ public abstract class GeoMesaClient implements Runnable {
             // use try-with-resources to ensure the reader is closed
             long startTime = System.currentTimeMillis();
 
+            int n = 0;
+            int realCount = 0;
             try (FeatureReader<SimpleFeatureType, SimpleFeature> reader =
                      datastore.getFeatureReader(query, Transaction.AUTO_COMMIT)) {
                 // loop through all results, only print out the first 10
-                int n = 0;
-
-                int realCount = 0;
 
                 SpatialRange longitudeRange = new SpatialRange(-73.987000, -73.977000);
                 SpatialRange latitudeRange = new SpatialRange(40.785000,40.795000);
@@ -262,8 +306,8 @@ public abstract class GeoMesaClient implements Runnable {
             long stopTime = System.currentTimeMillis();
             // System.out.println("This query consumes" + (stopTime - startTime) + "ms");
             System.out.println((stopTime - startTime));
-            String record = String.format("%s,%s\n", ECQL.toCQL(query.getFilter()), (stopTime-startTime));
-            TimeRecorder.recordTime("G:\\DataSet\\synthetic\\log\\synthetic_1_30d_60_all_drz.cymo.noagg.nobitmap.csv", record);
+            String record = String.format("%s,result count:%s,%s\n", ECQL.toCQL(query.getFilter()), n, (stopTime-startTime));
+            TimeRecorder.recordTime(logFilename, record);
         }
     }
 

@@ -6,5 +6,5 @@ package com.rogerguo.cymo.virtual.normalization;
  * @Created by rogerguo
  */
 public enum TimePeriod {
-    HOUR, DAY
+    HOUR, DAY, MINUTE, MIN10, MIN30, MIN2, MIN5
 }

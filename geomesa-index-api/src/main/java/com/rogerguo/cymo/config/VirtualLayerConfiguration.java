@@ -32,6 +32,11 @@ public class VirtualLayerConfiguration {
         timeGranularityMap = new HashMap<>();
         timeGranularityMap.put("hour", TimePeriod.HOUR);
         timeGranularityMap.put("day", TimePeriod.DAY);
+        timeGranularityMap.put("min10", TimePeriod.MIN10);
+        timeGranularityMap.put("min30", TimePeriod.MIN30);
+        timeGranularityMap.put("minute", TimePeriod.MINUTE);
+        timeGranularityMap.put("min2", TimePeriod.MIN2);
+        timeGranularityMap.put("min5", TimePeriod.MIN5);
 
         curveTypeMap = new HashMap<>();
         curveTypeMap.put("CURVE_T1X3Y3", CurveType.CURVE_T1X3Y3);
@@ -44,10 +49,13 @@ public class VirtualLayerConfiguration {
         curveTypeMap.put("CURVE_X3Y3T8", CurveType.CURVE_X3Y3T8);
         curveTypeMap.put("CURVE_T5X7Y7", CurveType.CURVE_T5X7Y7);
         curveTypeMap.put("CURVE_X7Y7T8", CurveType.CURVE_X7Y7T8);
+        curveTypeMap.put("CURVE_T1X4Y4", CurveType.CURVE_T1X4Y4);
+        curveTypeMap.put("CURVE_SPACE", CurveType.CURVE_SPACE);
+        curveTypeMap.put("CURVE_TIME", CurveType.CURVE_TIME);
 
         configMap = new HashMap<>();
         try {
-            BufferedReader in = new BufferedReader(new FileReader("E:\\Projects\\idea\\geomesa-cymo\\geomesa-index-api\\src\\main\\resources\\cymo\\conf\\test_synthetic_month1_xyt115_noagg.conf"));
+            BufferedReader in = new BufferedReader(new FileReader("E:\\Projects\\idea\\geomesa-cymo\\geomesa-index-api\\src\\main\\resources\\cymo\\conf\\test_synthetic_month1_params_test.conf"));
             String str;
             while ((str = in.readLine()) != null) {
                 String[] confPair = str.split("=");

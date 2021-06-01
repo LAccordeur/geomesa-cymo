@@ -34,9 +34,9 @@ public class VerifyUtil {
     public static void main(String[] args) {
         VerifyUtil verifyUtil = new VerifyUtil();
         List<String> realResult = verifyUtil.computeCountInThisRange(
-                new SpatialRange(-73.771,-73.77),
-                new SpatialRange(40.668,40.669),
-                new TimeRange(fromDateToTimestamp("2010-01-30 00:00:00"), fromDateToTimestamp("2010-01-30 23:59:59")));
+                new SpatialRange(-74.007756,-73.907756),
+                new SpatialRange(40.723537,40.823537),
+                new TimeRange(fromDateToTimestamp("2010-01-01 15:10:00"), fromDateToTimestamp("2010-01-01 16:09:59")));
         System.out.println(realResult.size());
         /*System.out.println(fromDateToTimestamp("2010-01-27 19:00:00"));
         System.out.println(NormalizedDimensionHelper.normalizedTime(TimePeriod.HOUR, fromDateToTimestamp("2010-01-01 00:00:00")));

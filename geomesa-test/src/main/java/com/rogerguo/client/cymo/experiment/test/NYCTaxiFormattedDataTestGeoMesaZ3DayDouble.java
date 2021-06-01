@@ -3,7 +3,6 @@ package com.rogerguo.client.cymo.experiment.test;
 
 import com.rogerguo.client.cymo.IndexingSchemeDecider;
 import com.rogerguo.client.cymo.experiment.data.CommonData;
-import com.rogerguo.cymo.config.VirtualLayerConfiguration;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -12,7 +11,6 @@ import org.geotools.data.Query;
 import org.geotools.factory.Hints;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.filter.text.ecql.ECQL;
-import org.locationtech.geomesa.index.conf.QueryHints;
 import org.locationtech.geomesa.utils.interop.SimpleFeatureTypes;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -35,20 +33,27 @@ import java.util.*;
  * @Date 2019/4/29 15:25
  * @Created by rogerguo
  */
-public class NYCTaxiFormattedDataTestGeoMesaZ3 implements CommonData {
+public class NYCTaxiFormattedDataTestGeoMesaZ3DayDouble implements CommonData {
     private SimpleFeatureType sft = null;
     private List<SimpleFeature> features = null;
     private List<Query> queries = null;
+
+    private String dataFilename;
+    private String queryFilename;
 
     /*@Override
     public String getTypeName() {
         return "nyc-taxi-data-month1-precision18";
     }*/
 
+    public NYCTaxiFormattedDataTestGeoMesaZ3DayDouble(String queryFilename, String dataFilename) {
+        this.dataFilename = dataFilename;
+        this.queryFilename = queryFilename;
+    }
     @Override
     public String getTypeName() {
         //return "nyc-taxi-data-month1-xzprecision20-geomprecision7";
-        return "nyc-taxi-data-geomesa-baseline";
+        return "nyc-taxi-data-geomesa-day-baseline-double";
     }
 
     @Override
@@ -70,7 +75,9 @@ public class NYCTaxiFormattedDataTestGeoMesaZ3 implements CommonData {
             sft.getUserData().put(SimpleFeatureTypes.DEFAULT_DATE_KEY, "dtg");
 
             sft.getUserData().put("geomesa.indices.enabled", "z3");
+            sft.getUserData().put("geomesa.z3.interval", "day");
             //sft.getUserData().put("geomesa.indices.enabled", "z2");
+            //sft.getUserData().put("geomesa.hbase.remote.filtering", "false");
 
         }
         return sft;
@@ -82,7 +89,7 @@ public class NYCTaxiFormattedDataTestGeoMesaZ3 implements CommonData {
             List<SimpleFeature> features = new ArrayList<>();
 
             // read the bundled t-drive CSV
-            URL input = getClass().getClassLoader().getResource("dataset/trip_data_1_pickup.csv");
+            URL input = getClass().getClassLoader().getResource("dataset/trip_data_1_pickup_double.csv");
             if (input == null) {
                 throw new RuntimeException("Couldn't load resource trip_data_1_pickup.csv");
             }
@@ -133,7 +140,7 @@ public class NYCTaxiFormattedDataTestGeoMesaZ3 implements CommonData {
             List<SimpleFeature> features = new ArrayList<>();
 
             // read the bundled t-drive CSV
-            URL input = getClass().getClassLoader().getResource("dataset/trip_data_1_pickup.csv");
+            URL input = getClass().getClassLoader().getResource("dataset/trip_data_1_pickup_double.csv");
             if (input == null) {
                 throw new RuntimeException("Couldn't load resource trip_data_1_pickup.csv");
             }
@@ -201,18 +208,10 @@ public class NYCTaxiFormattedDataTestGeoMesaZ3 implements CommonData {
 
             try {
                 List<Query> queries = new ArrayList<>();
-
-                // note: DURING is endpoint exclusive
-                String warmDuring = "dtg DURING 2011-01-12T15:00:00.000Z/2011-01-12T16:59:59.000Z";
-                // bounding box over most of the united states
-                String warmBbox = "bbox(geom,-73.960000, -73.860000, 40.632000,40.732000)";
-                // basic warm spatio-temporal query
-                Query warmQuery = new Query(getTypeName(), ECQL.toFilter(warmBbox + " AND " + warmDuring));
-                //warmQuery.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
                 int count = 0;
-                queries.add(warmQuery);
+
                 try {
-                    BufferedReader in = new BufferedReader(new FileReader("G:\\DataSet\\synthetic\\synthetic_001_1h_600_zipf"));
+                    BufferedReader in = new BufferedReader(new FileReader(queryFilename));
                     String str;
                     while ((str = in.readLine()) != null) {
                         String[] items = str.split(",");
@@ -224,26 +223,19 @@ public class NYCTaxiFormattedDataTestGeoMesaZ3 implements CommonData {
                         String lonMax = items[4];
                         String latMin = items[5];
                         String latMax = items[6];
-                        if (Double.valueOf(lonMin) >= boundingLonMin
-                        && Double.valueOf(lonMax) <= boundingLonMax
-                        && Double.valueOf(latMin) >= boundingLatMin
-                        && Double.valueOf(latMax) <= boundingLatMax
-                        && timestampMin >= boundingTimestampMin
-                        && timestampMax <= boundingTimestampMax) {
-                            String[] dateMinItems = timeMin.split(" ");
-                            String[] dateMaxItems = timeMax.split(" ");
-                            String during = String.format("dtg DURING %sT%s.000Z/%sT%s.000z", dateMinItems[0], dateMinItems[1], dateMaxItems[0], dateMaxItems[1]);
-                            String bbox = String.format("bbox(geom,%s, %s, %s,%s)", lonMin, latMin, lonMax,  latMax);
-                            System.out.println(during);
-                            System.out.println(bbox);
-                            Query query = new Query(getTypeName(), ECQL.toFilter(bbox + " AND " + during));
-                            //query.getHints().put(QueryHints.QUERY_INDEX(), "cymo");
-                            count++;
-                            if (count % 10 == 0) {
-                                queries.add(query);
-                            }
 
-                        }
+                        String[] dateMinItems = timeMin.split(" ");
+                        String[] dateMaxItems = timeMax.split(" ");
+                        String during = String.format("dtg DURING %sT%s.000Z/%sT%s.000z", dateMinItems[0], dateMinItems[1], dateMaxItems[0], dateMaxItems[1]);
+                        String bbox = String.format("bbox(geom,%s, %s, %s,%s)", lonMin, latMin, lonMax,  latMax);
+                        System.out.println(during);
+                        System.out.println(bbox);
+                        Query query = new Query(getTypeName(), ECQL.toFilter(bbox + " AND " + during));
+
+                        count++;
+
+                        queries.add(query);
+
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
