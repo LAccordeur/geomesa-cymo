@@ -48,7 +48,7 @@ public class ZCurve implements SpaceFillingCurve {
      */
     @Override
     public long getCurveValue(int x, int y) {
-        byte[] ret = new byte[8];
+        /*byte[] ret = new byte[8];
         int xh = makeGap(x);
         int xl = makeGap(x << 16);
         int yh = makeGap(y) >>> 1;
@@ -61,7 +61,8 @@ public class ZCurve implements SpaceFillingCurve {
         byte[] rl = CurveUtil.toBytes(zl);
         System.arraycopy(rh, 0, ret, 0, 4);
         System.arraycopy(rl, 0, ret, 4, 4);
-        return CurveUtil.bytesToLong(ret);
+        return CurveUtil.bytesToLong(ret);*/
+        return splitOneBit(y) | splitOneBit(x) << 1;
     }
 
     @Override
@@ -136,11 +137,25 @@ public class ZCurve implements SpaceFillingCurve {
         return (int) x;
     }
 
+
+    /** insert 0 between every bit in value. Only first 21 bits can be considered. */
+    public static long splitOneBit(long value) {
+
+        long x = value & MaxMask;
+        x = (x ^ (x << 32)) & 0x00000000ffffffffL;
+        x = (x ^ (x << 16)) & 0x0000ffff0000ffffL;
+        x = (x ^ (x <<  8)) & 0x00ff00ff00ff00ffL; // 11111111000000001111111100000000..
+        x = (x ^ (x <<  4)) & 0x0f0f0f0f0f0f0f0fL; // 1111000011110000
+        x = (x ^ (x <<  2)) & 0x3333333333333333L; // 11001100..
+        x = (x ^ (x <<  1)) & 0x5555555555555555L; // 1010...
+        return x;
+    }
+
     public static void main(String[] args) {
         ZCurve zCurve = new ZCurve();
-        long curve = zCurve.getCurveValue(1, 3, 4);
-        Map location = zCurve.from3DCurveValue(curve);
-        System.out.println(location);
+        long curve = zCurve.getCurveValue(11, 3);
+        //Map location = zCurve.from2DCurveValue(curve);
+        System.out.println(curve);
     }
 
     private static final int[] MASKS = new int[] { 0xFFFF0000, 0xFF00FF00,

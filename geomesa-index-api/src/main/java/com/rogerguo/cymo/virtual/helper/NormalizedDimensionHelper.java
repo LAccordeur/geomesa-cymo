@@ -39,8 +39,8 @@ public class NormalizedDimensionHelper {
     }
 
     public static void main(String[] args) {
-        System.out.println(normalizedLon(-73.999999));
-        System.out.println(normalizedLon(-73.996666));
-        System.out.println(normalizedLon(-73.998992));
+        System.out.println(normalizedLon(-37.0600867));
+        System.out.println(normalizedLon(-37.0595031));
+        System.out.println(normalizedLon(-37.05912132));
     }
 }

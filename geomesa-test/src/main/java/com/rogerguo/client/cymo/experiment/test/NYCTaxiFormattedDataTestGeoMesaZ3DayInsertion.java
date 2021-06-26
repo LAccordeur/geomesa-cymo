@@ -33,7 +33,7 @@ import java.util.*;
  * @Date 2019/4/29 15:25
  * @Created by rogerguo
  */
-public class NYCTaxiFormattedDataTestGeoMesaZ3DayDouble implements CommonData {
+public class NYCTaxiFormattedDataTestGeoMesaZ3DayInsertion implements CommonData {
     private SimpleFeatureType sft = null;
     private List<SimpleFeature> features = null;
     private List<Query> queries = null;
@@ -46,14 +46,14 @@ public class NYCTaxiFormattedDataTestGeoMesaZ3DayDouble implements CommonData {
         return "nyc-taxi-data-month1-precision18";
     }*/
 
-    public NYCTaxiFormattedDataTestGeoMesaZ3DayDouble(String queryFilename, String dataFilename) {
+    public NYCTaxiFormattedDataTestGeoMesaZ3DayInsertion(String queryFilename, String dataFilename) {
         this.dataFilename = dataFilename;
         this.queryFilename = queryFilename;
     }
     @Override
     public String getTypeName() {
         //return "nyc-taxi-data-month1-xzprecision20-geomprecision7";
-        return "nyc-taxi-data-geomesa-day-baseline-double";
+        return "nyc-taxi-data-geomesa-day-baseline-insertion";
     }
 
     @Override
@@ -89,7 +89,7 @@ public class NYCTaxiFormattedDataTestGeoMesaZ3DayDouble implements CommonData {
             List<SimpleFeature> features = new ArrayList<>();
 
             // read the bundled t-drive CSV
-            URL input = getClass().getClassLoader().getResource("dataset/trip_data_1_pickup_double.csv");
+            URL input = getClass().getClassLoader().getResource("dataset/trip_data_1_pickup.csv");
             if (input == null) {
                 throw new RuntimeException("Couldn't load resource trip_data_1_pickup.csv");
             }
@@ -140,7 +140,7 @@ public class NYCTaxiFormattedDataTestGeoMesaZ3DayDouble implements CommonData {
             List<SimpleFeature> features = new ArrayList<>();
 
             // read the bundled t-drive CSV
-            URL input = getClass().getClassLoader().getResource("dataset/trip_data_1_pickup_double.csv");
+            URL input = getClass().getClassLoader().getResource("dataset/trip_data_1_pickup.csv");
             if (input == null) {
                 throw new RuntimeException("Couldn't load resource trip_data_1_pickup.csv");
             }

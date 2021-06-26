@@ -32,7 +32,7 @@ public class TimePreferredCurve implements SpaceFillingCurve {
      */
     @Override
     public long getCurveValue(int x, int y) {
-        byte[] ret = new byte[8];
+        /*byte[] ret = new byte[8];
         int xh = makeGap(x);
         int xl = makeGap(x << 16);
         int yh = makeGap(y) >>> 1;
@@ -46,7 +46,8 @@ public class TimePreferredCurve implements SpaceFillingCurve {
         System.arraycopy(rh, 0, ret, 0, 4);
         System.arraycopy(rl, 0, ret, 4, 4);
 
-        return CurveUtil.bytesToLong(ret);
+        return CurveUtil.bytesToLong(ret);*/
+        return split(x) | split(y) << 1;
     }
 
     @Override
@@ -106,25 +107,26 @@ public class TimePreferredCurve implements SpaceFillingCurve {
 
 
     public static void main(String[] args) {
-        TimePreferredCurve timePreferredCurve = new TimePreferredCurve();
+        /*TimePreferredCurve timePreferredCurve = new TimePreferredCurve();
         long curve = timePreferredCurve.getCurveValue(1, 3, 4);
         String stringFormat = CurveUtil.bytesToBit(CurveUtil.toBytes(curve));
         System.out.println(curve);
-        System.out.println(stringFormat);
+        System.out.println(stringFormat);*/
 
-        /*ZCurve zCurve = new ZCurve();
+        TimePreferredCurve timePreferredCurve = new TimePreferredCurve();
+        ZCurve zCurve = new ZCurve();
         long start = System.currentTimeMillis();
-        for (int i = 0; i < 100; i++) {
-            for (int j = 0; j < 100; j ++) {
-                for (int k = 0; k < 100; k++) {
-                    timePreferredCurve.getCurveValue(i, j, k);
-                }
+        for (int i = 0; i < 10000; i++) {
+            for (int j = 0; j < 1000; j ++) {
+
+                timePreferredCurve.getCurveValue(i, j);
+
             }
         }
         long stop = System.currentTimeMillis();
         System.out.println("time: " + (stop - start));
         long result = split(11);
-        System.out.println(CurveUtil.bytesToBit(CurveUtil.toBytes(result)));*/
+        System.out.println(CurveUtil.bytesToBit(CurveUtil.toBytes(result)));
     }
 
 

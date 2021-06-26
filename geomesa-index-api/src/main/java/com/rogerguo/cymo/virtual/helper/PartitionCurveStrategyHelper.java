@@ -102,6 +102,7 @@ public class PartitionCurveStrategyHelper {
         }
     }
 
+    static int count = 0;
     public static CurveMeta getCurveMetaByNormalizedLocation(NormalizedLocation normalizedLocation) {
 
         PartitionLocation partitionLocation = new PartitionLocation(normalizedLocation);
@@ -120,7 +121,8 @@ public class PartitionCurveStrategyHelper {
                 // jump to default config
             }
             else {
-
+                count++;
+                System.out.println("from hbase get scheme: " + count);
                 try {
                     RowKeyItem rowKeyItem = RowKeyHelper.generateCurveMetaTableRowKey(partitionLocation.getPartitionID(), subspaceID);
                     Result result = hBaseDriver.get(CURVE_META_TABLE, rowKeyItem.getBytesRowKey());

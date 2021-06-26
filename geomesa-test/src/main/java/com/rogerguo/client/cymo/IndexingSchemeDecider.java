@@ -2,6 +2,7 @@ package com.rogerguo.client.cymo;
 
 import com.rogerguo.cymo.config.VirtualLayerConfiguration;
 import com.rogerguo.cymo.curve.CurveMeta;
+import com.rogerguo.cymo.curve.CurveType;
 import com.rogerguo.cymo.entity.SpatialRange;
 import com.rogerguo.cymo.entity.TimeRange;
 import com.rogerguo.cymo.hbase.HBaseDriver;
@@ -49,7 +50,7 @@ public class IndexingSchemeDecider {
 
     private static HBaseDriver hBaseDriver = new HBaseDriver("127.0.0.1");
 
-    private static String tableName = "frequency_real_test_month1";
+    private static String tableName = "frequency_real_test_month1_workload_multiple_predicted";
 
     private static int SPATIAL_NORMALIZE_PRECISION = 21;
 
@@ -64,7 +65,7 @@ public class IndexingSchemeDecider {
         TimeRange timeRange = new TimeRange(fromDateToTimestamp("2010-01-01 00:00:00"), fromDateToTimestamp("2010-01-31 23:59:59"));
 
         double predictionSpatialWidth = 0.02;
-        int predictionTimeWidth = 1;  // 1 hour
+        int predictionTimeWidth = 12;  // 12 * 5min = 1 hour
         try {
             decideIndexingScheme(longitudeRange, latitudeRange, timeRange, predictionSpatialWidth, predictionTimeWidth);
         } catch (IOException e) {
@@ -118,12 +119,19 @@ public class IndexingSchemeDecider {
 
             List<QueryPattern> queryPatterns = new ArrayList<>();
 
-            //TODO add query pattern
-            QueryPattern queryPattern1 = new QueryPattern(32, 32, 1, workload1Frequency, workload1Frequency*0.1);
+            //set workload1 as time-preferred query, workload2 as space-preferred query
+            /*QueryPattern queryPattern1 = new QueryPattern(32, 32, 1, workload1Frequency, workload1Frequency*0.1);
             queryPatterns.add(queryPattern1);
             QueryPattern queryPattern2 = new QueryPattern(2, 2, 24, workload2Frequency, workload2Frequency*10);
             queryPatterns.add(queryPattern2);
-            CurveMeta indexingScheme = EvaluateIndexingScheme.evaluateIndexing(queryPatterns);
+            CurveMeta indexingScheme = EvaluateIndexingScheme.evaluateIndexing(queryPatterns);*/
+            CurveMeta indexingScheme = null;
+            if (workload1Frequency > workload2Frequency) {
+                indexingScheme = new CurveMeta(CurveType.CURVE_TIME);
+            } else {
+                indexingScheme = new CurveMeta(CurveType.CURVE_SPACE);
+            }
+
             System.out.println(subspace + ": " + indexingScheme);
             PartitionCurveStrategyHelper.insertCurveMetaForSubspace(indexingScheme, new NormalizedLocation(subspace.getOriginalSubspaceLongitude(), subspace.getOriginalSubspaceLatitude(), subspace.getOriginalNormalizedTime()));
 
@@ -202,9 +210,9 @@ public class IndexingSchemeDecider {
                             for (Cell cell : cellList) {
                                 String columnFamilyName = Bytes.toString(CellUtil.cloneFamily(cell));
                                 int frequency = (int) Math.floor(Double.valueOf(Bytes.toString(CellUtil.cloneValue(cell))));
-                                if (columnFamilyName.equals("workload_1_next_passenger_million_sample")) {
+                                if (columnFamilyName.equals("workload_1_next_passenger")) {
                                     workload1Frequency += frequency;
-                                } else if (columnFamilyName.equals("workload_2_heatmap_airport")) {
+                                } else if (columnFamilyName.equals("workload_2_heatmap_multiple")) {
                                     workload2Frequency += frequency;
                                     if (workload2Frequency > 0) {
                                         System.out.println(workload2Frequency);
