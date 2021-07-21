@@ -110,8 +110,8 @@ public class CheckIndexingScheme {
             long subspaceID = zCurve.getCurveValue(subspaceLongitude, subspaceLatitude);
 
             try {
-                String curveMetaTableReal = "geomesa_virtual_space_metadata_table_nyc_synthetic_multiple";
-                String curveMetaTablePredicted = "geomesa_virtual_space_metadata_table_nyc_synthetic_multiple_prediction";
+                String curveMetaTableReal = "geomesa_virtual_space_metadata_table_nyc_synthetic_multiple_ratio-12-9";
+                String curveMetaTablePredicted = "geomesa_virtual_space_metadata_table_nyc_synthetic_multiple_ratio-12-9_predicted";
                 RowKeyItem rowKeyItem = RowKeyHelper.generateCurveMetaTableRowKey(partitionLocation.getPartitionID(), subspaceID);
                 Result resultReal = hBaseDriver.get(curveMetaTableReal, rowKeyItem.getBytesRowKey());
                 CurveType curveTypeReal = null;

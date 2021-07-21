@@ -6,6 +6,7 @@ import com.rogerguo.cymo.curve.CurveType;
 import com.rogerguo.cymo.entity.SpatialRange;
 import com.rogerguo.cymo.entity.TimeRange;
 import com.rogerguo.cymo.hbase.HBaseDriver;
+import com.rogerguo.cymo.virtual.VirtualLayerGeoMesa;
 import com.rogerguo.cymo.virtual.entity.NormalizedLocation;
 import com.rogerguo.cymo.virtual.entity.NormalizedRange;
 import com.rogerguo.cymo.virtual.entity.SubspaceLocation;
@@ -48,9 +49,11 @@ import java.util.*;
  */
 public class IndexingSchemeDecider {
 
+    VirtualLayerGeoMesa virtualLayerGeoMesa = new VirtualLayerGeoMesa("127.0.0.1");
+
     private static HBaseDriver hBaseDriver = new HBaseDriver("127.0.0.1");
 
-    private static String tableName = "frequency_real_test_month1_workload_multiple_predicted";
+    private static String tableName = "frequency_real_test_month1_workload_multiple_ratio-12-9_predicted";
 
     private static int SPATIAL_NORMALIZE_PRECISION = 21;
 
@@ -212,7 +215,7 @@ public class IndexingSchemeDecider {
                                 int frequency = (int) Math.floor(Double.valueOf(Bytes.toString(CellUtil.cloneValue(cell))));
                                 if (columnFamilyName.equals("workload_1_next_passenger")) {
                                     workload1Frequency += frequency;
-                                } else if (columnFamilyName.equals("workload_2_heatmap_multiple")) {
+                                } else if (columnFamilyName.equals("workload_2_heatmap_multiple_9x")) {
                                     workload2Frequency += frequency;
                                     if (workload2Frequency > 0) {
                                         System.out.println(workload2Frequency);
