@@ -8,7 +8,7 @@ import com.rogerguo.cymo.virtual.{VirtualLayer, VirtualLayerGeoMesa}
 import com.typesafe.scalalogging.LazyLogging
 import org.geotools.factory.Hints
 import org.locationtech.geomesa.curve.BinnedTime.TimeToBinnedTime
-import org.locationtech.geomesa.curve.{BinnedTime, Z3SFC}
+import org.locationtech.geomesa.curve.{BinnedTime, TimePeriod, Z3SFC}
 import org.locationtech.geomesa.filter.FilterValues
 import org.locationtech.geomesa.index.api.IndexKeySpace.IndexKeySpaceFactory
 import org.locationtech.geomesa.index.api.ShardStrategy.{NoShardStrategy, ZShardStrategy}
@@ -50,6 +50,15 @@ class CymoIndexKeySpace(val sft: SimpleFeatureType,
   protected val testSubspaceId : Short = 1;
   protected val testEncodedValue = 2;
 
+  // z3 filter param start
+  protected val sfc = Z3SFC(TimePeriod.Day)  // note: static configuration when using Z3 filter in cymo
+
+  protected val timeToIndex: TimeToBinnedTime = BinnedTime.timeToBinnedTime(TimePeriod.Day)
+
+  private val dateToIndex = BinnedTime.dateToBinnedTime(TimePeriod.Day)
+  private val boundsToDates = BinnedTime.boundsToIndexableDates(TimePeriod.Day)
+  // z3 filter param end
+
   protected val geomIndex: Int = sft.indexOf(geomField)
   protected val dtgIndex: Int = sft.indexOf(dtgField)
 
@@ -82,7 +91,7 @@ class CymoIndexKeySpace(val sft: SimpleFeatureType,
 
     // create the byte array - allocate a single array up front to contain everything
     // ignore tier, not used here
-    val bytes = Array.ofDim[Byte](shard.length + 16 + id.length)
+    /*val bytes = Array.ofDim[Byte](shard.length + 16 + id.length)
 
     if (shard.isEmpty) {
       System.arraycopy(bytesRowKey, 0, bytes, 0, bytesRowKey.length)
@@ -91,7 +100,36 @@ class CymoIndexKeySpace(val sft: SimpleFeatureType,
       bytes(0) = shard.head // shard is only a single byte
       System.arraycopy(bytesRowKey, 0, bytes, 1, bytesRowKey.length)
       System.arraycopy(id, 0, bytes, 17, id.length)
+    }*/
+
+
+    // z3 filter parameter start
+    // add z3 between cell index key and feature id
+    val BinnedTime(b, t) = timeToIndex(time)
+    val z = try { sfc.index(geom.getX, geom.getY, t, lenient).z } catch {
+      case NonFatal(e) => throw new IllegalArgumentException(s"Invalid z value from geometry/time: $geom,$dtg", e)
     }
+
+    val bytes = Array.ofDim[Byte](shard.length + 26 + id.length)
+
+    if (shard.isEmpty) {
+      System.arraycopy(bytesRowKey, 0, bytes, 0, bytesRowKey.length)
+
+      ByteArrays.writeShort(b, bytes, 16)
+      ByteArrays.writeLong(z, bytes, 18)
+
+      System.arraycopy(id, 0, bytes, 26, id.length)
+    } else {
+      bytes(0) = shard.head // shard is only a single byte
+      System.arraycopy(bytesRowKey, 0, bytes, 1, bytesRowKey.length)
+
+      ByteArrays.writeShort(b, bytes, 17)
+      ByteArrays.writeLong(z, bytes, 19)
+
+      System.arraycopy(id, 0, bytes, 27, id.length)
+    }
+
+    // z3 filter parameter end
 
     SingleRowKeyValue(bytes, sharing, shard, CymoIndexKey(cymoRowKeyItem.getPartitionID, cymoRowKeyItem.getSubspaceID, cymoRowKeyItem.getCellID), tier, id, writable.values)
   }
@@ -132,12 +170,46 @@ class CymoIndexKeySpace(val sft: SimpleFeatureType,
       temporalBounds += ((lowerTimestamp, upperTimestamp))
     }
 
+
+    // z3 filter start
+
+    val minTime = sfc.time.min.toLong
+    val maxTime = sfc.time.max.toLong
+    // calculate map of weeks to time intervals in that week
+    val timesByBin = scala.collection.mutable.Map.empty[Short, Seq[(Long, Long)]].withDefaultValue(Seq.empty)
+    val unboundedBins = Seq.newBuilder[(Short, Short)]
+
+    // note: intervals shouldn't have any overlaps
+    intervals.foreach { interval =>
+      val (lower, upper) = boundsToDates(interval.bounds)
+      val BinnedTime(lb, lt) = dateToIndex(lower)
+      val BinnedTime(ub, ut) = dateToIndex(upper)
+
+      if (interval.isBoundedBothSides) {
+        if (lb == ub) {
+          timesByBin(lb) ++= Seq((lt, ut))
+        } else {
+          timesByBin(lb) ++= Seq((lt, maxTime))
+          timesByBin(ub) ++= Seq((minTime, ut))
+          Range.inclusive(lb + 1, ub - 1).foreach(b => timesByBin(b.toShort) = sfc.wholePeriod)
+        }
+      } else if (interval.lower.value.isDefined) {
+        timesByBin(lb) ++= Seq((lt, maxTime))
+        unboundedBins += (((lb + 1).toShort, Short.MaxValue))
+      } else if (interval.upper.value.isDefined) {
+        timesByBin(ub) ++= Seq((minTime, ut))
+        unboundedBins += ((0, (ub - 1).toShort))
+      }
+    }
+
+    // z3 filter end
+
     // xy: spatial region; temporalBounds: timestamp (both not normalized yet)
-    CymoIndexValues(geometries, xy, intervals, temporalBounds.result())
+    CymoIndexValues(geometries, xy, intervals, temporalBounds.result(), sfc, timesByBin.toMap)
   }
 
   override def getRanges(values: CymoIndexValues, multiplier: Int): Iterator[ScanRange[CymoIndexKey]] = {
-    val CymoIndexValues( _, xy, _, temporalBounds) = values
+    val CymoIndexValues( _, xy, _, temporalBounds, _, _) = values
 
     val spatialRangeArray = xy.toArray
     val temporalRangeArray = temporalBounds.toArray

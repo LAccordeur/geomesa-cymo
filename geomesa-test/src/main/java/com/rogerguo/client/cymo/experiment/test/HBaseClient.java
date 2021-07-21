@@ -28,12 +28,12 @@ public class HBaseClient extends GeoMesaClient {
 //            String logFilename = "G:\\DataSet\\production-v4\\response-time-log\\production.geomesa.z3.day.05_05.csv";
 //            String queryFilename = "G:\\DataSet\\production-v4\\workload_1_next_passenger_05_05_sample";
 
-            String logFilename = "G:\\DataSet\\synthetic-test-v2\\response-time-log\\synthetic.cymo.fixed-time.384.192.test.csv";
-            String queryFilename = "G:\\DataSet\\synthetic-test-v2\\test";
+            String logFilename = "G:\\DataSet\\synthetic-filter-test\\response-time-log\\synthetic.geomesa.0505.3.csv";
+            String queryFilename = "G:\\DataSet\\synthetic-filter-test\\workload_1_next_passenger_05_05_sample";
 
             String dataFilename = "E:\\Projects\\idea\\geomesa-cymo\\geomesa-test\\src\\main\\resources\\dataset\\trip_data_1_pickup.csv";
-            CommonData data = new NYCTaxiFormattedDataTestSynthetic(queryFilename, dataFilename);
-            //CommonData data = new NYCTaxiFormattedDataTestGeoMesaZ3Day(queryFilename, dataFilename);
+            //CommonData data = new NYCTaxiFormattedDataTestSynthetic(queryFilename, dataFilename);
+            CommonData data = new NYCTaxiFormattedDataTestGeoMesaZ3Day(queryFilename, dataFilename);
             //CommonData data = new NYCTaxiFormattedDataTestGeoMesaZ3DayInsertion(null, dataFilename);
             //CommonData data = new NYCTaxiFormattedDataTestGeoMesaZ3Synthetic(queryFilename, dataFilename);
             HBaseClient client = new HBaseClient(args, data, true, logFilename);

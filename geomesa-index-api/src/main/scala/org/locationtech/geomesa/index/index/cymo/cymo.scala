@@ -2,6 +2,7 @@ package org.locationtech.geomesa.index.index
 
 import java.time.ZonedDateTime
 
+import org.locationtech.geomesa.curve.Z3SFC
 import org.locationtech.geomesa.filter.{Bounds, FilterValues}
 import org.locationtech.jts.geom.Geometry
 
@@ -27,6 +28,8 @@ package object cymo {
   case class CymoIndexValues(geometries: FilterValues[Geometry],
                            spatialBounds: Seq[(Double, Double, Double, Double)],
                              intervals: FilterValues[Bounds[ZonedDateTime]],
-                           temporalBounds: Seq[(Long, Long)])
+                           temporalBounds: Seq[(Long, Long)],
+                             sfc: Z3SFC,
+                             z3TemporalBounds: Map[Short, Seq[(Long, Long)]])
 
 }

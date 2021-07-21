@@ -31,12 +31,13 @@ import org.locationtech.geomesa.hbase.HBaseSystemProperties.{CoprocessorPath, Ta
 import org.locationtech.geomesa.hbase.coprocessor.aggregators.{HBaseArrowAggregator, HBaseBinAggregator, HBaseDensityAggregator, HBaseStatsAggregator}
 import org.locationtech.geomesa.hbase.coprocessor.{AllCoprocessors, CoprocessorConfig, GeoMesaCoprocessor}
 import org.locationtech.geomesa.hbase.data.HBaseQueryPlan.{CoprocessorPlan, EmptyPlan, ScanPlan}
-import org.locationtech.geomesa.hbase.filters.{CqlTransformFilter, Z2HBaseFilter, Z3HBaseFilter}
+import org.locationtech.geomesa.hbase.filters.{CqlTransformFilter, CymoZ3HBaseFilter, Z2HBaseFilter, Z3HBaseFilter}
 import org.locationtech.geomesa.hbase.utils.HBaseVersions
 import org.locationtech.geomesa.index.api.IndexAdapter.IndexWriter
 import org.locationtech.geomesa.index.api.WritableFeature.FeatureWrapper
 import org.locationtech.geomesa.index.api.{WritableFeature, _}
-import org.locationtech.geomesa.index.filters.{Z2Filter, Z3Filter}
+import org.locationtech.geomesa.index.filters.{CymoZ3Filter, Z2Filter, Z3Filter}
+import org.locationtech.geomesa.index.index.cymo.{CymoIndex, CymoIndexValues}
 import org.locationtech.geomesa.index.index.id.IdIndex
 import org.locationtech.geomesa.index.index.z2.{Z2Index, Z2IndexValues}
 import org.locationtech.geomesa.index.index.z3.{Z3Index, Z3IndexValues}
@@ -254,6 +255,11 @@ class HBaseIndexAdapter(ds: HBaseDataStore) extends IndexAdapter[HBaseDataStore]
           case _: Z2Index =>
             strategy.values.toSeq.map { case v: Z2IndexValues =>
               (Z2HBaseFilter.Priority, Z2HBaseFilter(Z2Filter(v), index.keySpace.sharding.length))
+            }
+
+          case _: CymoIndex =>
+            strategy.values.toSeq.map {case v: CymoIndexValues =>
+              (CymoZ3HBaseFilter.Priority, CymoZ3HBaseFilter(CymoZ3Filter(v), index.keySpace.sharding.length + 16))
             }
 
           // TODO GEOMESA-1807 deal with non-points in a pushdown XZ filter
